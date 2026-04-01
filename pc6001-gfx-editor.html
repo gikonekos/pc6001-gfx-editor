@@ -281,7 +281,7 @@
     <button class="mode-tab" data-mode="3">SCR3<br><small>64×192 15c</small></button>
   </div>
   <div class="hbar"></div>
-  <div style="font-size:10px; color:var(--text-dim);">PC-6001 GRAPHICS EDITOR v1.1</div>
+  <div style="font-size:10px; color:var(--text-dim);">PC-6001 GRAPHICS EDITOR v1.2</div>
 </div>
 
 <div id="mode-info">SCREEN 1 — 128×192px — セミグラフィック — 16×24 chars — 各キャラクタ独立色</div>
@@ -1021,7 +1021,7 @@ document.getElementById('file-input').addEventListener('change', e => {
           const d = (r-pr)**2 + (g-pg)**2 + (b-pb)**2;
           if (d < bestDist) { bestDist = d; best = pi; }
         });
-        pixels[y * md.w + x] = best ? 1 : 0; // simplified: nonzero = fg
+        pixels[y * md.w + x] = best; // store actual palette index
       }
     }
     render();

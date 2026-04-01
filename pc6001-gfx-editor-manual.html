@@ -466,7 +466,7 @@ em.hl { font-style: normal; color: var(--yellow); }
   <span class="topbar-sep">·</span>
   <a href="#en-top">English</a>
   <div class="topbar-spacer"></div>
-  <span>v1.1</span>
+  <span>v1.2</span>
 </div>
 
 <div class="page">
@@ -478,7 +478,7 @@ em.hl { font-style: normal; color: var(--yellow); }
   <div class="hero-badge">DOCUMENTATION</div>
   <h1 id="ja-top">PC-<em>6001</em> GRAPHICS EDITOR<span class="cursor"></span></h1>
   <div class="hero-sub">仕様書 &amp; 利用マニュアル　／　Specification &amp; User Manual</div>
-  <div class="ver-tag">VERSION 1.1 — SINGLE FILE HTML — NO DEPENDENCIES</div>
+  <div class="ver-tag">VERSION 1.2 — SINGLE FILE HTML — NO DEPENDENCIES</div>
 </div>
 
 <!-- TOC (JP) -->
@@ -898,6 +898,14 @@ em.hl { font-style: normal; color: var(--yellow); }
         <tr><th>バージョン</th><th>リリース</th><th>変更内容</th></tr>
       </thead>
       <tbody>
+        <tr>
+          <td>v1.2</td>
+          <td>2026-04-01</td>
+          <td>
+            <strong>PNG読み込みバグ修正</strong><br>
+            最近傍変換後にパレット番号を正しく保持するよう修正。従来は0/1の2値に潰していたため、全ピクセルがFG色になる問題を修正。
+          </td>
+        </tr>
         <tr>
           <td>v1.1</td>
           <td>2026-04-01</td>
@@ -1353,6 +1361,14 @@ em.hl { font-style: normal; color: var(--yellow); }
       </thead>
       <tbody>
         <tr>
+          <td>v1.2</td>
+          <td>2026-04-01</td>
+          <td>
+            <strong>PNG import bug fix</strong><br>
+            Fixed palette index storage after nearest-neighbor conversion. Previously collapsed to binary 0/1, causing all pixels to render as FG color.
+          </td>
+        </tr>
+        <tr>
           <td>v1.1</td>
           <td>2026-04-01</td>
           <td>
@@ -1382,7 +1398,7 @@ em.hl { font-style: normal; color: var(--yellow); }
 </div><!-- /lang-block EN -->
 
 <footer>
-  PC-6001 GFX EDITOR &nbsp;—&nbsp; <span>v1.1</span> &nbsp;|&nbsp; Single-file HTML / No dependencies<br>
+  PC-6001 GFX EDITOR &nbsp;—&nbsp; <span>v1.2</span> &nbsp;|&nbsp; Single-file HTML / No dependencies<br>
   NEC PC-6001 is a trademark of NEC Corporation. This tool is an independent fan project.
 </footer>
 

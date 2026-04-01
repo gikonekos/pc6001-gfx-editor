@@ -58,6 +58,7 @@ Or use **GitHub Pages** directly:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v1.2 | 2026-04-01 | Fix PNG import bug — palette index was collapsed to 0/1, causing all pixels to render as FG color |
 | v1.1 | 2026-04-01 | Correct pixel aspect ratio (2:1 for SCR1/2, 4:1 for SCR3) |
 | v1.0 | 2026-04-01 | Initial release |
 
@@ -124,6 +125,7 @@ git clone https://github.com/gikonekos/pc6001-gfx-editor.git
 
 | バージョン | 日付 | 変更内容 |
 |------------|------|----------|
+| v1.2 | 2026-04-01 | PNG読み込みバグ修正 — パレット番号が0/1に潰れ全ピクセルがFG色になる問題を修正 |
 | v1.1 | 2026-04-01 | 実アスペクト比対応（SCR1/2 は 2:1、SCR3 は 4:1） |
 | v1.0 | 2026-04-01 | 初期リリース |
 
