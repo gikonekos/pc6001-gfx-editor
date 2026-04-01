@@ -3,7 +3,7 @@
 **Browser-based pixel art editor for the NEC PC-6001 home computer.**  
 No install, no dependencies — open the HTML file and start drawing.
 
-🎨 **[Open Editor](pc6001-gfx-editor.html)** &nbsp;|&nbsp; 📖 **[Manual](pc6001-gfx-editor-manual.html)**
+🎨 **[Open Editor](https://gikonekos.github.io/pc6001-gfx-editor/pc6001-gfx-editor.html)** &nbsp;|&nbsp; 📖 **[Manual](https://gikonekos.github.io/pc6001-gfx-editor/pc6001-gfx-editor-manual.html)**
 
 ---
 
@@ -76,7 +76,7 @@ MIT License — see [LICENSE](LICENSE) for details.
 **NEC PC-6001 用ブラウザベースのピクセルアートエディタ。**  
 インストール不要・外部依存なし。HTML ファイルを開くだけで動作します。
 
-🎨 **[エディタを開く](pc6001-gfx-editor.html)** &nbsp;|&nbsp; 📖 **[マニュアル](pc6001-gfx-editor-manual.html)**
+🎨 **[エディタを開く](https://gikonekos.github.io/pc6001-gfx-editor/pc6001-gfx-editor.html)** &nbsp;|&nbsp; 📖 **[マニュアル](https://gikonekos.github.io/pc6001-gfx-editor/pc6001-gfx-editor-manual.html)**
 
 ---
 
