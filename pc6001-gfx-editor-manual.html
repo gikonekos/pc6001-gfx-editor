@@ -466,7 +466,7 @@ em.hl { font-style: normal; color: var(--yellow); }
   <span class="topbar-sep">·</span>
   <a href="#en-top">English</a>
   <div class="topbar-spacer"></div>
-  <span>v1.2</span>
+  <span>v1.3</span>
 </div>
 
 <div class="page">
@@ -478,7 +478,7 @@ em.hl { font-style: normal; color: var(--yellow); }
   <div class="hero-badge">DOCUMENTATION</div>
   <h1 id="ja-top">PC-<em>6001</em> GRAPHICS EDITOR<span class="cursor"></span></h1>
   <div class="hero-sub">仕様書 &amp; 利用マニュアル　／　Specification &amp; User Manual</div>
-  <div class="ver-tag">VERSION 1.2 — SINGLE FILE HTML — NO DEPENDENCIES</div>
+  <div class="ver-tag">VERSION 1.3 — SINGLE FILE HTML — NO DEPENDENCIES</div>
 </div>
 
 <!-- TOC (JP) -->
@@ -898,6 +898,15 @@ em.hl { font-style: normal; color: var(--yellow); }
         <tr><th>バージョン</th><th>リリース</th><th>変更内容</th></tr>
       </thead>
       <tbody>
+        <tr>
+          <td>v1.3</td>
+          <td>2026-04-01</td>
+          <td>
+            <strong>PNG/JPEG読み込み大幅改善</strong><br>
+            キャラクタブロック（8×8）単位で頻度の高い上位2色を自動検出し、FG/BGカラーを自動設定するよう変更。
+            JPEG形式にも対応。緑一色になるバグを解消。カラー画像がPC-6001パレットで適切に表示されるように。
+          </td>
+        </tr>
         <tr>
           <td>v1.2</td>
           <td>2026-04-01</td>
@@ -1361,6 +1370,15 @@ em.hl { font-style: normal; color: var(--yellow); }
       </thead>
       <tbody>
         <tr>
+          <td>v1.3</td>
+          <td>2026-04-01</td>
+          <td>
+            <strong>PNG/JPEG import major improvement</strong><br>
+            Per-character block (8×8) top-2 color detection: automatically assigns FG/BG from the most frequent palette colors in each block.
+            Added JPEG support. Fixed solid-green rendering bug. Color images now display correctly mapped to the PC-6001 palette.
+          </td>
+        </tr>
+        <tr>
           <td>v1.2</td>
           <td>2026-04-01</td>
           <td>
@@ -1398,7 +1416,7 @@ em.hl { font-style: normal; color: var(--yellow); }
 </div><!-- /lang-block EN -->
 
 <footer>
-  PC-6001 GFX EDITOR &nbsp;—&nbsp; <span>v1.2</span> &nbsp;|&nbsp; Single-file HTML / No dependencies<br>
+  PC-6001 GFX EDITOR &nbsp;—&nbsp; <span>v1.3</span> &nbsp;|&nbsp; Single-file HTML / No dependencies<br>
   NEC PC-6001 is a trademark of NEC Corporation. This tool is an independent fan project.
 </footer>
 
