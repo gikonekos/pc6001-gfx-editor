@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PC-6001 Graphics Editor</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700&display=swap');
+
+  :root {
+    --bg: #0d0d0d;
+    --panel: #141414;
+    --border: #2a2a2a;
+    --accent: #00e5a0;
+    --accent2: #ff6b35;
+    --text: #d0d0d0;
+    --text-dim: #555;
+    --active: #00e5a0;
+    --btn: #1e1e1e;
+    --btn-hover: #2a2a2a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  #header {
+    background: #0a0a0a;
+    border-bottom: 1px solid var(--border);
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  #header h1 {
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    white-space: nowrap;
+  }
+  #header h1 span { color: var(--accent2); }
+
+  .hbar { flex: 1; }
+
+  /* ── Mode selector ── */
+  .mode-tabs {
+    display: flex;
+    gap: 2px;
+  }
+  .mode-tab {
+    padding: 3px 10px;
+    background: var(--btn);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11px;
+    transition: all 0.15s;
+  }
+  .mode-tab:hover { background: var(--btn-hover); color: var(--text); }
+  .mode-tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  /* ── Main layout ── */
+  #main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── Left toolbox ── */
+  #toolbox {
+    width: 48px;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 0;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+  .tool-btn {
+    width: 36px;
+    height: 36px;
+    background: var(--btn);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s;
+    position: relative;
+  }
+  .tool-btn:hover { background: var(--btn-hover); border-color: #444; }
+  .tool-btn.active { background: #003322; border-color: var(--accent); color: var(--accent); }
+  .tool-sep { width: 28px; height: 1px; background: var(--border); margin: 4px 0; }
+
+  /* ── Canvas area ── */
+  #canvas-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0a0a0a;
+    overflow: auto;
+    position: relative;
+  }
+  #canvas-wrap {
+    position: relative;
+    image-rendering: pixelated;
+  }
+  #main-canvas {
+    display: block;
+    image-rendering: pixelated;
+    cursor: crosshair;
+  }
+  #grid-canvas {
+    position: absolute;
+    top: 0; left: 0;
+    pointer-events: none;
+    image-rendering: pixelated;
+  }
+
+  /* ── Right panel ── */
+  #right-panel {
+    width: 180px;
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+  .rpanel-section {
+    border-bottom: 1px solid var(--border);
+    padding: 8px;
+  }
+  .rpanel-label {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  /* Palette */
+  #palette-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3px;
+  }
+  .pal-cell {
+    aspect-ratio: 1;
+    border: 1px solid #333;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .pal-cell:hover { transform: scale(1.15); z-index: 1; }
+  .pal-cell.fg { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .pal-cell.bg { outline: 2px solid var(--accent2); outline-offset: 1px; }
+
+  /* Color indicators */
+  #color-indicator {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    align-items: center;
+  }
+  .ci-box {
+    width: 22px; height: 22px;
+    border: 1px solid #555;
+  }
+  .ci-label { font-size: 10px; color: var(--text-dim); }
+
+  /* Zoom */
+  #zoom-ctrl {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .zoom-btn {
+    width: 22px; height: 22px;
+    background: var(--btn);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .zoom-btn:hover { background: var(--btn-hover); }
+  #zoom-val { font-size: 11px; min-width: 32px; text-align: center; }
+
+  /* Info */
+  #coord-info { font-size: 10px; color: var(--text-dim); line-height: 1.6; }
+
+  /* Char edit (8x8 grid) */
+  #char-grid-wrap { display: none; }
+  #char-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 1px;
+    background: #333;
+    border: 1px solid #333;
+  }
+  .cg-cell {
+    aspect-ratio: 1;
+    background: #000;
+    cursor: pointer;
+    transition: background 0.05s;
+  }
+  .cg-cell.on { background: var(--accent); }
+
+  /* Buttons */
+  .action-btn {
+    width: 100%;
+    padding: 5px 8px;
+    background: var(--btn);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11px;
+    text-align: left;
+    transition: all 0.1s;
+    margin-bottom: 3px;
+  }
+  .action-btn:hover { background: var(--btn-hover); border-color: #444; }
+  .action-btn.primary { border-color: var(--accent); color: var(--accent); }
+  .action-btn.primary:hover { background: #003322; }
+
+  /* Status bar */
+  #statusbar {
+    height: 22px;
+    background: #0a0a0a;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 16px;
+    font-size: 10px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+  #statusbar span { color: var(--text); }
+
+  /* Mode info banner */
+  #mode-info {
+    padding: 3px 8px;
+    font-size: 10px;
+    color: #888;
+    background: #111;
+    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.5px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #333; }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <h1>PC-<span>6001</span> GFX EDITOR</h1>
+  <div class="mode-tabs">
+    <button class="mode-tab active" data-mode="1">SCR1<br><small>128×192 15c</small></button>
+    <button class="mode-tab" data-mode="2">SCR2<br><small>128×192 2c</small></button>
+    <button class="mode-tab" data-mode="3">SCR3<br><small>64×192 15c</small></button>
+  </div>
+  <div class="hbar"></div>
+  <div style="font-size:10px; color:var(--text-dim);">PC-6001 GRAPHICS EDITOR v1.1</div>
+</div>
+
+<div id="mode-info">SCREEN 1 — 128×192px — セミグラフィック — 16×24 chars — 各キャラクタ独立色</div>
+
+<div id="main">
+  <!-- Toolbox -->
+  <div id="toolbox">
+    <button class="tool-btn active" data-tool="pen" title="ペン (P)">✏️</button>
+    <button class="tool-btn" data-tool="eraser" title="消しゴム (E)">🧹</button>
+    <button class="tool-btn" data-tool="fill" title="塗りつぶし (F)">🪣</button>
+    <button class="tool-btn" data-tool="line" title="直線 (L)">╱</button>
+    <button class="tool-btn" data-tool="rect" title="矩形 (R)">□</button>
+    <button class="tool-btn" data-tool="rectfill" title="塗り矩形 (Shift+R)">■</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn" data-tool="eyedropper" title="スポイト (I)">💧</button>
+    <button class="tool-btn" data-tool="charsel" title="キャラ選択 (C)">⊞</button>
+  </div>
+
+  <!-- Canvas -->
+  <div id="canvas-area">
+    <div id="canvas-wrap">
+      <canvas id="main-canvas"></canvas>
+      <canvas id="grid-canvas"></canvas>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div id="right-panel">
+    <!-- Screen mode quick info -->
+    <div class="rpanel-section">
+      <div class="rpanel-label">SCREEN INFO</div>
+      <div id="screen-info" style="font-size:10px; color:#888; line-height:1.7;"></div>
+    </div>
+
+    <!-- Palette -->
+    <div class="rpanel-section">
+      <div class="rpanel-label">PALETTE (左:FG / 右:BG)</div>
+      <div id="palette-grid"></div>
+      <div id="color-indicator">
+        <div>
+          <div class="ci-label">FG</div>
+          <div class="ci-box" id="ci-fg"></div>
+        </div>
+        <div>
+          <div class="ci-label">BG</div>
+          <div class="ci-box" id="ci-bg"></div>
+        </div>
+        <div style="font-size:10px; color:var(--text-dim); line-height:1.4;" id="color-clash-warn"></div>
+      </div>
+    </div>
+
+    <!-- Char editor -->
+    <div class="rpanel-section" id="char-grid-wrap">
+      <div class="rpanel-label">CHAR EDIT (8×8)</div>
+      <div id="char-grid"></div>
+      <div style="margin-top:4px; font-size:10px; color:var(--text-dim)" id="char-pos-label">—</div>
+    </div>
+
+    <!-- Zoom -->
+    <div class="rpanel-section">
+      <div class="rpanel-label">ZOOM</div>
+      <div id="zoom-ctrl">
+        <button class="zoom-btn" id="zoom-out">−</button>
+        <div id="zoom-val">×3</div>
+        <button class="zoom-btn" id="zoom-in">＋</button>
+      </div>
+    </div>
+
+    <!-- Coords -->
+    <div class="rpanel-section">
+      <div class="rpanel-label">POSITION</div>
+      <div id="coord-info">X: — Y: —<br>CHAR: — —<br>BYTE: —</div>
+    </div>
+
+    <!-- Actions -->
+    <div class="rpanel-section">
+      <div class="rpanel-label">ACTIONS</div>
+      <button class="action-btn" id="btn-clear">CLR — 全消去</button>
+      <button class="action-btn" id="btn-undo">↩ Undo (Ctrl+Z)</button>
+      <button class="action-btn" id="btn-redo">↪ Redo (Ctrl+Y)</button>
+    </div>
+
+    <div class="rpanel-section">
+      <div class="rpanel-label">EXPORT</div>
+      <button class="action-btn primary" id="btn-png">PNG ダウンロード</button>
+      <button class="action-btn primary" id="btn-asm">ASM テキスト (DB)</button>
+      <button class="action-btn" id="btn-load-png">PNG 読み込み…</button>
+      <input type="file" id="file-input" accept="image/png" style="display:none">
+    </div>
+
+    <!-- Grid toggle -->
+    <div class="rpanel-section">
+      <div class="rpanel-label">VIEW</div>
+      <button class="action-btn" id="btn-grid">グリッド: ON</button>
+    </div>
+  </div>
+</div>
+
+<div id="statusbar">
+  モード: <span id="sb-mode">SCREEN 1</span>
+  ツール: <span id="sb-tool">PEN</span>
+  Undo: <span id="sb-undo">0</span>
+  <div style="flex:1"></div>
+  左クリック=FG描画 / 右クリック=BG描画 / Ctrl+Z=Undo / Ctrl+Y=Redo
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// PC-6001 パレット (0=透明/黒 〜 15)
+// Screen 1/3 で使用する15色+黒
+// ─────────────────────────────────────────────
+const PC6001_PALETTE = [
+  '#000000', // 0 黒
+  '#0000cc', // 1 青
+  '#cc0000', // 2 赤
+  '#cc00cc', // 3 マゼンタ
+  '#00cc00', // 4 緑
+  '#00cccc', // 5 シアン
+  '#cccc00', // 6 黄
+  '#cccccc', // 7 白
+  '#000000', // 8 黒（dim）
+  '#0000ff', // 9 明青
+  '#ff0000', // 10 明赤
+  '#ff00ff', // 11 明マゼンタ
+  '#00ff00', // 12 明緑
+  '#00ffff', // 13 明シアン
+  '#ffff00', // 14 明黄
+  '#ffffff', // 15 明白
+];
+
+// ─────────────────────────────────────────────
+// Screen mode definitions
+// ─────────────────────────────────────────────
+// pa = pixel aspect ratio (horizontal stretch per pixel)
+// 4:3 screen / (128/192) = 2.0 for SCR1/2; 4:3 / (64/192) = 4.0 for SCR3
+const MODES = {
+  1: { w: 128, h: 192, cw: 8, ch: 8, cols: 16, rows: 24, pa: 2, name:'SCREEN 1', desc:'128×192px / 15色 / 16×24キャラ / キャラ単位で色指定', colorMode:'char' },
+  2: { w: 128, h: 192, cw: 8, ch: 1, cols: 16, rows: 192, pa: 2, name:'SCREEN 2', desc:'128×192px / 各8px行に前景+背景2色制限 (色衝突注意)', colorMode:'row' },
+  3: { w: 64,  h: 192, cw: 8, ch: 8, cols:  8, rows: 24, pa: 4, name:'SCREEN 3', desc:'64×192px / 15色 / 8×24キャラ / キャラ単位で色指定', colorMode:'char' },
+};
+
+// ─────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────
+let mode = 1;
+let zoom = 3;
+let tool = 'pen';
+let fgColor = 7;  // palette index
+let bgColor = 0;
+let showGrid = true;
+
+// Pixel data: Uint8Array [w*h], stores palette index per pixel
+let pixels = null;
+// Char color data for SCR1/SCR3: [cols*rows] => {fg, bg}
+let charColors = null;
+
+let undoStack = [];
+let redoStack = [];
+const MAX_UNDO = 50;
+
+// Drawing state
+let isDrawing = false;
+let startX = -1, startY = -1;
+let previewPixels = null;
+
+// Char editor
+let selectedChar = null; // {cx, cy}
+
+// ─────────────────────────────────────────────
+// DOM refs
+// ─────────────────────────────────────────────
+const mainCanvas = document.getElementById('main-canvas');
+const gridCanvas = document.getElementById('grid-canvas');
+const ctx = mainCanvas.getContext('2d');
+const gctx = gridCanvas.getContext('2d');
+
+// ─────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────
+function initMode(m) {
+  mode = m;
+  const md = MODES[m];
+  pixels = new Uint8Array(md.w * md.h);
+  charColors = [];
+  for (let i = 0; i < md.cols * md.rows; i++) {
+    charColors.push({ fg: 7, bg: 0 });
+  }
+  undoStack = [];
+  redoStack = [];
+  updateModeUI();
+  resizeCanvases();
+  render();
+}
+
+function updateModeUI() {
+  const md = MODES[mode];
+  document.getElementById('mode-info').textContent =
+    `${md.name} — ${md.w}×${md.h}px — ${md.desc}`;
+  document.getElementById('sb-mode').textContent = md.name;
+  document.getElementById('screen-info').innerHTML =
+    `解像度: ${md.w}×${md.h}<br>キャラ: ${md.cw}×${md.ch}px<br>` +
+    `グリッド: ${md.cols}×${md.rows}<br>色モード: ${md.colorMode==='char'?'キャラ単位':'行単位'}<br>` +
+    `ドット比: 1:${md.pa} (横長)`;
+  document.querySelectorAll('.mode-tab').forEach(t => {
+    t.classList.toggle('active', +t.dataset.mode === mode);
+  });
+  // Show char editor only for char-color modes
+  document.getElementById('char-grid-wrap').style.display =
+    md.colorMode === 'char' ? 'block' : 'none';
+  updateCharGrid();
+}
+
+function resizeCanvases() {
+  const md = MODES[mode];
+  const w = md.w * zoom * md.pa, h = md.h * zoom;
+  mainCanvas.width = w; mainCanvas.height = h;
+  gridCanvas.width = w; gridCanvas.height = h;
+  drawGrid();
+}
+
+// ─────────────────────────────────────────────
+// Render
+// ─────────────────────────────────────────────
+function render(src) {
+  const md = MODES[mode];
+  const data = src || pixels;
+  ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+
+  for (let y = 0; y < md.h; y++) {
+    for (let x = 0; x < md.w; x++) {
+      const pi = data[y * md.w + x];
+      // For SCREEN2, clamp to row color pair
+      let color;
+      if (md.colorMode === 'row') {
+        const ci = charColors[y]; // row-based
+        // Allow only fg or bg
+        color = pi ? PC6001_PALETTE[ci.fg] : PC6001_PALETTE[ci.bg];
+      } else {
+        const cx = Math.floor(x / md.cw);
+        const cy = Math.floor(y / md.ch);
+        const cidx = cy * md.cols + cx;
+        const cc = charColors[cidx];
+        color = pi ? PC6001_PALETTE[cc.fg] : PC6001_PALETTE[cc.bg];
+      }
+      ctx.fillStyle = color;
+      ctx.fillRect(x * zoom * md.pa, y * zoom, zoom * md.pa, zoom);
+    }
+  }
+}
+
+function drawGrid() {
+  const md = MODES[mode];
+  gctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+  if (!showGrid) return;
+
+  const pw = zoom * md.pa; // pixel width on screen
+  const ph = zoom;         // pixel height on screen
+
+  gctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  gctx.lineWidth = 0.5;
+
+  // pixel grid (only when zoom >= 4)
+  if (zoom >= 4) {
+    for (let x = 0; x <= md.w; x++) {
+      gctx.beginPath(); gctx.moveTo(x*pw, 0); gctx.lineTo(x*pw, md.h*ph); gctx.stroke();
+    }
+    for (let y = 0; y <= md.h; y++) {
+      gctx.beginPath(); gctx.moveTo(0, y*ph); gctx.lineTo(md.w*pw, y*ph); gctx.stroke();
+    }
+  }
+  // char grid
+  gctx.strokeStyle = 'rgba(0,229,160,0.15)';
+  gctx.lineWidth = 1;
+  for (let cx = 0; cx <= md.cols; cx++) {
+    const px = cx * md.cw * pw;
+    gctx.beginPath(); gctx.moveTo(px, 0); gctx.lineTo(px, md.h*ph); gctx.stroke();
+  }
+  for (let cy = 0; cy <= md.rows; cy++) {
+    const py = cy * md.ch * ph;
+    gctx.beginPath(); gctx.moveTo(0, py); gctx.lineTo(md.w*pw, py); gctx.stroke();
+  }
+}
+
+// ─────────────────────────────────────────────
+// Pixel helpers
+// ─────────────────────────────────────────────
+function getPixel(x, y) {
+  const md = MODES[mode];
+  if (x < 0 || y < 0 || x >= md.w || y >= md.h) return -1;
+  return pixels[y * md.w + x];
+}
+
+function setPixel(x, y, colorIdx, buf) {
+  const md = MODES[mode];
+  if (x < 0 || y < 0 || x >= md.w || y >= md.h) return;
+  const target = buf || pixels;
+  target[y * md.w + x] = colorIdx;
+  // SCR2: update row color
+  if (md.colorMode === 'row' && !buf) {
+    enforceRowColor(y, colorIdx);
+  }
+}
+
+function enforceRowColor(y, newColor) {
+  const ci = charColors[y];
+  if (newColor !== 0 && newColor !== ci.fg && newColor !== ci.bg) {
+    // Replace BG if same as current FG, else just set FG
+    ci.fg = newColor;
+  }
+}
+
+function charAt(x, y) {
+  const md = MODES[mode];
+  return { cx: Math.floor(x / md.cw), cy: Math.floor(y / md.ch) };
+}
+
+// ─────────────────────────────────────────────
+// Undo/Redo
+// ─────────────────────────────────────────────
+function pushUndo() {
+  undoStack.push({ px: pixels.slice(), cc: JSON.parse(JSON.stringify(charColors)) });
+  if (undoStack.length > MAX_UNDO) undoStack.shift();
+  redoStack = [];
+  document.getElementById('sb-undo').textContent = undoStack.length;
+}
+
+function undo() {
+  if (!undoStack.length) return;
+  redoStack.push({ px: pixels.slice(), cc: JSON.parse(JSON.stringify(charColors)) });
+  const s = undoStack.pop();
+  pixels = s.px;
+  charColors = s.cc;
+  render();
+  document.getElementById('sb-undo').textContent = undoStack.length;
+  updateCharGrid();
+}
+
+function redo() {
+  if (!redoStack.length) return;
+  undoStack.push({ px: pixels.slice(), cc: JSON.parse(JSON.stringify(charColors)) });
+  const s = redoStack.pop();
+  pixels = s.px;
+  charColors = s.cc;
+  render();
+  document.getElementById('sb-undo').textContent = undoStack.length;
+  updateCharGrid();
+}
+
+// ─────────────────────────────────────────────
+// Drawing tools
+// ─────────────────────────────────────────────
+function getCanvasXY(e) {
+  const rect = mainCanvas.getBoundingClientRect();
+  const md = MODES[mode];
+  let cx = e.clientX - rect.left;
+  let cy = e.clientY - rect.top;
+  if (e.touches && e.touches[0]) {
+    cx = e.touches[0].clientX - rect.left;
+    cy = e.touches[0].clientY - rect.top;
+  }
+  // Scale from CSS pixels → canvas pixels → dot coordinates
+  const scaleX = mainCanvas.width  / rect.width;
+  const scaleY = mainCanvas.height / rect.height;
+  return {
+    x: Math.floor((cx * scaleX) / (zoom * md.pa)),
+    y: Math.floor((cy * scaleY) / zoom),
+  };
+}
+
+function getDrawColor(e) {
+  return e.button === 2 ? bgColor : fgColor;
+}
+
+function drawLine(x0, y0, x1, y1, color, buf) {
+  let dx = Math.abs(x1-x0), dy = Math.abs(y1-y0);
+  let sx = x0<x1?1:-1, sy = y0<y1?1:-1;
+  let err = dx-dy;
+  while (true) {
+    setPixel(x0, y0, color, buf);
+    if (x0===x1 && y0===y1) break;
+    let e2 = 2*err;
+    if (e2 > -dy) { err -= dy; x0 += sx; }
+    if (e2 < dx) { err += dx; y0 += sy; }
+  }
+}
+
+function drawRect(x0, y0, x1, y1, color, fill, buf) {
+  let lx=Math.min(x0,x1), rx=Math.max(x0,x1);
+  let ly=Math.min(y0,y1), ry=Math.max(y0,y1);
+  if (fill) {
+    for (let y=ly; y<=ry; y++)
+      for (let x=lx; x<=rx; x++)
+        setPixel(x, y, color, buf);
+  } else {
+    for (let x=lx; x<=rx; x++) { setPixel(x,ly,color,buf); setPixel(x,ry,color,buf); }
+    for (let y=ly; y<=ry; y++) { setPixel(lx,y,color,buf); setPixel(rx,y,color,buf); }
+  }
+}
+
+function floodFill(x0, y0, fillColor) {
+  const md = MODES[mode];
+  const target = getPixel(x0, y0);
+  if (target === fillColor) return;
+  const stack = [[x0, y0]];
+  while (stack.length) {
+    const [x, y] = stack.pop();
+    if (x<0||y<0||x>=md.w||y>=md.h) continue;
+    if (pixels[y*md.w+x] !== target) continue;
+    pixels[y*md.w+x] = fillColor;
+    stack.push([x+1,y],[x-1,y],[x,y+1],[x,y-1]);
+  }
+}
+
+// ─────────────────────────────────────────────
+// Mouse / Touch events
+// ─────────────────────────────────────────────
+mainCanvas.addEventListener('contextmenu', e => e.preventDefault());
+
+mainCanvas.addEventListener('mousedown', onDown);
+mainCanvas.addEventListener('mousemove', onMove);
+mainCanvas.addEventListener('mouseup', onUp);
+mainCanvas.addEventListener('mouseleave', onUp);
+mainCanvas.addEventListener('touchstart', e => { e.preventDefault(); onDown(e.touches[0]); }, {passive:false});
+mainCanvas.addEventListener('touchmove', e => { e.preventDefault(); onMove(e.touches[0]); }, {passive:false});
+mainCanvas.addEventListener('touchend', e => { onUp(e); }, {passive:false});
+
+function onDown(e) {
+  const {x, y} = getCanvasXY(e);
+  const color = (e.button === 2) ? bgColor : fgColor;
+
+  if (tool === 'eyedropper') {
+    const pi = getPixel(x, y);
+    if (pi < 0) return;
+    if (e.button === 2) bgColor = pi; else fgColor = pi;
+    updateColorUI();
+    return;
+  }
+  if (tool === 'charsel') {
+    const {cx, cy} = charAt(x, y);
+    selectChar(cx, cy);
+    return;
+  }
+  if (tool === 'fill') {
+    pushUndo();
+    floodFill(x, y, color);
+    render();
+    return;
+  }
+
+  pushUndo();
+  isDrawing = true;
+  startX = x; startY = y;
+
+  if (tool === 'pen' || tool === 'eraser') {
+    setPixel(x, y, tool === 'eraser' ? bgColor : color);
+    render();
+  }
+}
+
+function onMove(e) {
+  const {x, y} = getCanvasXY(e);
+  const md = MODES[mode];
+  const {cx, cy} = charAt(x, y);
+  const cidx = (md.colorMode === 'row') ? y : (cy * md.cols + cx);
+  const cc = charColors[cidx] || {fg:fgColor, bg:bgColor};
+  document.getElementById('coord-info').innerHTML =
+    `X:${x} Y:${y}<br>CHAR:${cx},${cy}<br>` +
+    `BYTE:$${((y * md.w + x) >> 3).toString(16).toUpperCase().padStart(4,'0')}h`;
+
+  if (!isDrawing) return;
+  const color = (e.button === 2) ? bgColor : fgColor;
+
+  if (tool === 'pen' || tool === 'eraser') {
+    setPixel(x, y, tool === 'eraser' ? bgColor : color);
+    render();
+  } else if (tool === 'line' || tool === 'rect' || tool === 'rectfill') {
+    // Preview on temp buffer
+    const tmp = pixels.slice();
+    if (tool === 'line') drawLine(startX, startY, x, y, color, tmp);
+    else drawRect(startX, startY, x, y, color, tool === 'rectfill', tmp);
+    render(tmp);
+  }
+}
+
+function onUp(e) {
+  if (!isDrawing) return;
+  const coords = getCanvasXY(e.changedTouches ? e.changedTouches[0] : e);
+  const {x, y} = coords;
+  const color = (e.button === 2) ? bgColor : fgColor;
+
+  if (tool === 'line') drawLine(startX, startY, x, y, color);
+  else if (tool === 'rect') drawRect(startX, startY, x, y, color, false);
+  else if (tool === 'rectfill') drawRect(startX, startY, x, y, color, true);
+
+  isDrawing = false;
+  render();
+}
+
+// ─────────────────────────────────────────────
+// Char color editor
+// ─────────────────────────────────────────────
+function selectChar(cx, cy) {
+  const md = MODES[mode];
+  if (cx < 0 || cy < 0 || cx >= md.cols || cy >= md.rows) return;
+  selectedChar = {cx, cy};
+  const cidx = cy * md.cols + cx;
+  document.getElementById('char-pos-label').textContent = `CHAR [${cx}, ${cy}]  idx=${cidx}`;
+  updateCharGrid();
+}
+
+function updateCharGrid() {
+  const wrap = document.getElementById('char-grid-wrap');
+  if (MODES[mode].colorMode !== 'char') return;
+  if (!selectedChar) return;
+  const md = MODES[mode];
+  const {cx, cy} = selectedChar;
+  const cidx = cy * md.cols + cx;
+  const cc = charColors[cidx];
+  // Draw 8x8 bit pattern
+  const grid = document.getElementById('char-grid');
+  grid.innerHTML = '';
+  for (let row = 0; row < md.ch; row++) {
+    for (let col = 0; col < md.cw; col++) {
+      const px = cx * md.cw + col;
+      const py = cy * md.ch + row;
+      const pi = (px >= 0 && py >= 0 && px < md.w && py < md.h) ? pixels[py * md.w + px] : 0;
+      const cell = document.createElement('div');
+      cell.className = 'cg-cell' + (pi ? ' on' : '');
+      cell.style.background = pi ? PC6001_PALETTE[cc.fg] : PC6001_PALETTE[cc.bg];
+      cell.addEventListener('click', () => {
+        pushUndo();
+        const cur = pixels[py * md.w + px];
+        pixels[py * md.w + px] = cur ? 0 : 1;
+        render();
+        updateCharGrid();
+      });
+      grid.appendChild(cell);
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+// Palette UI
+// ─────────────────────────────────────────────
+function buildPalette() {
+  const grid = document.getElementById('palette-grid');
+  grid.innerHTML = '';
+  PC6001_PALETTE.forEach((color, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'pal-cell';
+    cell.style.background = color;
+    cell.title = `色${i}: ${color}`;
+    if (i === fgColor) cell.classList.add('fg');
+    if (i === bgColor) cell.classList.add('bg');
+    cell.addEventListener('click', () => {
+      fgColor = i;
+      updateColorUI();
+    });
+    cell.addEventListener('contextmenu', e => {
+      e.preventDefault();
+      bgColor = i;
+      updateColorUI();
+    });
+    grid.appendChild(cell);
+  });
+}
+
+function updateColorUI() {
+  document.querySelectorAll('.pal-cell').forEach((c, i) => {
+    c.classList.toggle('fg', i === fgColor);
+    c.classList.toggle('bg', i === bgColor);
+  });
+  document.getElementById('ci-fg').style.background = PC6001_PALETTE[fgColor];
+  document.getElementById('ci-bg').style.background = PC6001_PALETTE[bgColor];
+  // SCR2 clash warning
+  const warn = document.getElementById('color-clash-warn');
+  if (MODES[mode].colorMode === 'row' && fgColor === bgColor) {
+    warn.textContent = '⚠ 同色';
+    warn.style.color = '#ff6b35';
+  } else {
+    warn.textContent = '';
+  }
+  // Apply FG/BG to selected char
+  if (selectedChar && MODES[mode].colorMode === 'char') {
+    const md = MODES[mode];
+    const {cx, cy} = selectedChar;
+    charColors[cy * md.cols + cx] = { fg: fgColor, bg: bgColor };
+    render();
+    updateCharGrid();
+  }
+}
+
+// ─────────────────────────────────────────────
+// Export: PNG
+// ─────────────────────────────────────────────
+document.getElementById('btn-png').addEventListener('click', () => {
+  const md = MODES[mode];
+  const exp = document.createElement('canvas');
+  exp.width = md.w; exp.height = md.h;
+  const ectx = exp.getContext('2d');
+  for (let y = 0; y < md.h; y++) {
+    for (let x = 0; x < md.w; x++) {
+      const pi = pixels[y * md.w + x];
+      let color;
+      if (md.colorMode === 'row') {
+        const ci = charColors[y];
+        color = pi ? PC6001_PALETTE[ci.fg] : PC6001_PALETTE[ci.bg];
+      } else {
+        const cx = Math.floor(x / md.cw);
+        const cy = Math.floor(y / md.ch);
+        const cc = charColors[cy * md.cols + cx];
+        color = pi ? PC6001_PALETTE[cc.fg] : PC6001_PALETTE[cc.bg];
+      }
+      ectx.fillStyle = color;
+      ectx.fillRect(x, y, 1, 1);
+    }
+  }
+  exp.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `pc6001_scr${mode}.png`;
+    a.click();
+  });
+});
+
+// ─────────────────────────────────────────────
+// Export: ASM
+// ─────────────────────────────────────────────
+document.getElementById('btn-asm').addEventListener('click', () => {
+  const md = MODES[mode];
+  let out = [];
+  out.push(`; PC-6001 ${md.name} VRAM Data`);
+  out.push(`; Size: ${md.w}x${md.h}  Generated by PC-6001 GFX Editor`);
+  out.push(`;`);
+
+  if (md.colorMode === 'char') {
+    out.push(`; ── Pattern Data (${md.cols * md.rows * md.ch} bytes) ──`);
+    out.push(`GFX_PATTERN:`);
+    for (let cy = 0; cy < md.rows; cy++) {
+      for (let cx = 0; cx < md.cols; cx++) {
+        let bytes = [];
+        for (let row = 0; row < md.ch; row++) {
+          let byte = 0;
+          for (let col = 0; col < md.cw; col++) {
+            const px = cx * md.cw + col;
+            const py = cy * md.ch + row;
+            if (px < md.w && py < md.h && pixels[py * md.w + px]) {
+              byte |= (0x80 >> col);
+            }
+          }
+          bytes.push('0' + byte.toString(16).toUpperCase().padStart(2,'0') + 'H');
+        }
+        out.push(`    DB  ${bytes.join(', ')}  ; CHAR(${cx},${cy})`);
+      }
+    }
+    out.push('');
+    out.push(`; ── Color Data (${md.cols * md.rows} bytes, upper nibble=FG lower=BG) ──`);
+    out.push(`GFX_COLOR:`);
+    let colorBytes = [];
+    for (let i = 0; i < charColors.length; i++) {
+      const cc = charColors[i];
+      const b = ((cc.fg & 0xF) << 4) | (cc.bg & 0xF);
+      colorBytes.push('0' + b.toString(16).toUpperCase().padStart(2,'0') + 'H');
+      if (colorBytes.length === 8 || i === charColors.length-1) {
+        out.push(`    DB  ${colorBytes.join(', ')}`);
+        colorBytes = [];
+      }
+    }
+  } else {
+    // SCREEN 2: bitmap rows
+    out.push(`; ── Bitmap Data (${md.w/8 * md.h} bytes) ──`);
+    out.push(`GFX_BITMAP:`);
+    for (let y = 0; y < md.h; y++) {
+      let bytes = [];
+      for (let bx = 0; bx < md.w/8; bx++) {
+        let byte = 0;
+        for (let bit = 0; bit < 8; bit++) {
+          if (pixels[y * md.w + bx*8 + bit]) byte |= (0x80 >> bit);
+        }
+        bytes.push('0' + byte.toString(16).toUpperCase().padStart(2,'0') + 'H');
+      }
+      out.push(`    DB  ${bytes.join(', ')}  ; Y=${y}`);
+    }
+    out.push('');
+    out.push(`; ── Color Data (${md.h} rows × 1 byte, upper nibble=FG lower=BG) ──`);
+    out.push(`GFX_COLOR:`);
+    let crow = [];
+    for (let y = 0; y < md.h; y++) {
+      const cc = charColors[y] || {fg:7,bg:0};
+      const b = ((cc.fg & 0xF) << 4) | (cc.bg & 0xF);
+      crow.push('0' + b.toString(16).toUpperCase().padStart(2,'0') + 'H');
+      if (crow.length === 8 || y === md.h-1) {
+        out.push(`    DB  ${crow.join(', ')}`);
+        crow = [];
+      }
+    }
+  }
+
+  out.push('');
+  out.push(`    END`);
+
+  const blob = new Blob([out.join('\n')], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `pc6001_scr${mode}.asm`;
+  a.click();
+});
+
+// ─────────────────────────────────────────────
+// Import PNG
+// ─────────────────────────────────────────────
+document.getElementById('btn-load-png').addEventListener('click', () => {
+  document.getElementById('file-input').click();
+});
+document.getElementById('file-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    const md = MODES[mode];
+    const tmp = document.createElement('canvas');
+    tmp.width = md.w; tmp.height = md.h;
+    const tc = tmp.getContext('2d');
+    tc.drawImage(img, 0, 0, md.w, md.h);
+    const imgData = tc.getImageData(0, 0, md.w, md.h);
+    pushUndo();
+    for (let y = 0; y < md.h; y++) {
+      for (let x = 0; x < md.w; x++) {
+        const idx = (y * md.w + x) * 4;
+        const r = imgData.data[idx], g = imgData.data[idx+1], b = imgData.data[idx+2];
+        // Find nearest palette color
+        let best = 0, bestDist = Infinity;
+        PC6001_PALETTE.forEach((hex, pi) => {
+          const pr = parseInt(hex.slice(1,3),16);
+          const pg = parseInt(hex.slice(3,5),16);
+          const pb = parseInt(hex.slice(5,7),16);
+          const d = (r-pr)**2 + (g-pg)**2 + (b-pb)**2;
+          if (d < bestDist) { bestDist = d; best = pi; }
+        });
+        pixels[y * md.w + x] = best ? 1 : 0; // simplified: nonzero = fg
+      }
+    }
+    render();
+  };
+  img.src = URL.createObjectURL(file);
+  e.target.value = '';
+});
+
+// ─────────────────────────────────────────────
+// Controls
+// ─────────────────────────────────────────────
+document.querySelectorAll('.mode-tab').forEach(t => {
+  t.addEventListener('click', () => {
+    if (+t.dataset.mode === mode) return;
+    if (undoStack.length || pixels.some(p => p)) {
+      if (!confirm('モードを変更するとデータが消えます。続けますか？')) return;
+    }
+    initMode(+t.dataset.mode);
+  });
+});
+
+document.querySelectorAll('.tool-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    tool = b.dataset.tool;
+    document.querySelectorAll('.tool-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('sb-tool').textContent = tool.toUpperCase();
+  });
+});
+
+document.getElementById('zoom-in').addEventListener('click', () => {
+  if (zoom >= 8) return;
+  zoom++;
+  document.getElementById('zoom-val').textContent = `×${zoom}`;
+  resizeCanvases();
+  render();
+});
+document.getElementById('zoom-out').addEventListener('click', () => {
+  if (zoom <= 1) return;
+  zoom--;
+  document.getElementById('zoom-val').textContent = `×${zoom}`;
+  resizeCanvases();
+  render();
+});
+
+document.getElementById('btn-clear').addEventListener('click', () => {
+  if (!confirm('全消去しますか？')) return;
+  pushUndo();
+  const md = MODES[mode];
+  pixels = new Uint8Array(md.w * md.h);
+  charColors = [];
+  for (let i = 0; i < md.cols * md.rows; i++) charColors.push({fg:7,bg:0});
+  render();
+  updateCharGrid();
+});
+
+document.getElementById('btn-undo').addEventListener('click', undo);
+document.getElementById('btn-redo').addEventListener('click', redo);
+
+let gridOn = true;
+document.getElementById('btn-grid').addEventListener('click', () => {
+  gridOn = !gridOn;
+  showGrid = gridOn;
+  document.getElementById('btn-grid').textContent = `グリッド: ${gridOn?'ON':'OFF'}`;
+  drawGrid();
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); return; }
+  if (e.ctrlKey && (e.key === 'y' || e.key === 'Y')) { e.preventDefault(); redo(); return; }
+  const map = { p:'pen', e:'eraser', f:'fill', l:'line', r:'rect', i:'eyedropper', c:'charsel' };
+  const t = e.shiftKey && e.key.toLowerCase() === 'r' ? 'rectfill' : map[e.key.toLowerCase()];
+  if (t) {
+    tool = t;
+    document.querySelectorAll('.tool-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.tool === t);
+    });
+    document.getElementById('sb-tool').textContent = t.toUpperCase();
+  }
+});
+
+// ─────────────────────────────────────────────
+// Startup
+// ─────────────────────────────────────────────
+buildPalette();
+updateColorUI();
+initMode(1);
+</script>
+</body>
+</html>

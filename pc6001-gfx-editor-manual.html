@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PC-6001 GFX Editor — 仕様書 / Manual</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap');
+
+:root {
+  --bg: #06080a;
+  --paper: #0c0f12;
+  --card: #111418;
+  --border: #1e2428;
+  --border2: #2a3038;
+  --green: #00e5a0;
+  --green-dim: #00a06e;
+  --orange: #ff7a3d;
+  --blue: #4db8ff;
+  --yellow: #ffe066;
+  --text: #c8d0d8;
+  --text-dim: #5a6470;
+  --text-mid: #8a949e;
+  --scan: rgba(0,229,160,0.015);
+  --glow: 0 0 18px rgba(0,229,160,0.18);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-size: 14px;
+  line-height: 1.75;
+  min-height: 100vh;
+  /* scanline effect */
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    var(--scan) 2px,
+    var(--scan) 4px
+  );
+}
+
+/* ── Page wrap ── */
+.page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 20px 80px;
+}
+
+/* ── Hero ── */
+.hero {
+  padding: 52px 0 36px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: 'PC-6001';
+  position: absolute;
+  right: -10px;
+  top: 10px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 120px;
+  color: rgba(0,229,160,0.03);
+  letter-spacing: -4px;
+  pointer-events: none;
+  user-select: none;
+}
+.hero-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--green-dim);
+  letter-spacing: 3px;
+  margin-bottom: 10px;
+}
+.hero h1 {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(22px, 4vw, 36px);
+  color: var(--green);
+  letter-spacing: 2px;
+  line-height: 1.2;
+  text-shadow: var(--glow);
+  margin-bottom: 6px;
+}
+.hero h1 em {
+  color: var(--orange);
+  font-style: normal;
+}
+.hero-sub {
+  font-size: 13px;
+  color: var(--text-dim);
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 1px;
+  margin-top: 10px;
+}
+.ver-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border: 1px solid var(--green-dim);
+  color: var(--green);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  margin-top: 14px;
+}
+
+/* ── TOC ── */
+.toc {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--green);
+  padding: 18px 24px;
+  margin: 32px 0;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+}
+.toc-title {
+  color: var(--green);
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+.toc ol { padding-left: 20px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-mid); text-decoration: none; transition: color 0.15s; }
+.toc a:hover { color: var(--green); }
+
+/* ── Section ── */
+.lang-block {
+  margin: 48px 0;
+}
+.lang-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 56px 0 40px;
+}
+.lang-divider-line { flex: 1; height: 1px; background: var(--border2); }
+.lang-divider-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--orange);
+  padding: 4px 14px;
+  border: 1px solid var(--orange);
+  white-space: nowrap;
+}
+
+section {
+  margin: 40px 0;
+  scroll-margin-top: 20px;
+}
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.sec-num {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--green-dim);
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+.sec-head h2 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 1px;
+}
+
+/* ── Subsection ── */
+.sub-head {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: var(--orange);
+  letter-spacing: 2px;
+  margin: 24px 0 10px;
+  padding-left: 10px;
+  border-left: 2px solid var(--orange);
+}
+
+/* ── Prose ── */
+p { margin: 8px 0; color: var(--text); }
+p + p { margin-top: 10px; }
+
+/* ── Table ── */
+.tbl-wrap { overflow-x: auto; margin: 14px 0; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-family: 'Share Tech Mono', monospace;
+}
+thead tr {
+  background: #141a1f;
+  border-bottom: 1px solid var(--green-dim);
+}
+thead th {
+  padding: 8px 12px;
+  text-align: left;
+  color: var(--green);
+  font-weight: 400;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+tbody tr:hover { background: #12191f; }
+tbody td { padding: 7px 12px; color: var(--text-mid); vertical-align: top; }
+tbody td:first-child { color: var(--yellow); white-space: nowrap; }
+td code, th code { font-family: 'Share Tech Mono', monospace; font-size: 12px; }
+
+/* ── Key badge ── */
+kbd {
+  display: inline-block;
+  padding: 1px 7px;
+  background: #1a2028;
+  border: 1px solid var(--border2);
+  border-bottom: 2px solid #0a0e12;
+  border-radius: 3px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--yellow);
+  white-space: nowrap;
+}
+
+/* ── Code block ── */
+pre {
+  background: #080c0f;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--blue);
+  padding: 16px 18px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: #9ae4c0;
+  overflow-x: auto;
+  line-height: 1.8;
+  margin: 14px 0;
+}
+pre .comment { color: var(--text-dim); }
+pre .label { color: var(--orange); }
+pre .directive { color: var(--yellow); }
+pre .value { color: var(--blue); }
+
+/* ── Info card ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 16px 20px;
+  margin: 14px 0;
+}
+.card.warn {
+  border-color: var(--orange);
+  border-left: 3px solid var(--orange);
+  background: #100d09;
+}
+.card.warn .card-head { color: var(--orange); }
+.card.info {
+  border-color: var(--blue);
+  border-left: 3px solid var(--blue);
+  background: #090d12;
+}
+.card.info .card-head { color: var(--blue); }
+.card.tip {
+  border-color: var(--green-dim);
+  border-left: 3px solid var(--green);
+  background: #090f0d;
+}
+.card.tip .card-head { color: var(--green); }
+.card-head {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+
+/* ── List ── */
+ul.doc-list, ol.doc-list {
+  padding-left: 22px;
+  margin: 8px 0;
+}
+ul.doc-list li, ol.doc-list li {
+  margin: 5px 0;
+  color: var(--text);
+}
+ul.doc-list li::marker { color: var(--green-dim); }
+
+/* ── Tool grid ── */
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+.tool-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 12px 14px;
+  transition: border-color 0.15s;
+}
+.tool-card:hover { border-color: var(--border2); }
+.tool-icon { font-size: 20px; margin-bottom: 6px; }
+.tool-name {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: var(--orange);
+  margin-bottom: 4px;
+}
+.tool-key {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 11px;
+}
+.tool-desc { font-size: 12px; color: var(--text-mid); line-height: 1.5; }
+
+/* ── Palette swatch inline ── */
+.pal-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 10px 0;
+}
+.pal-swatch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 3px 8px 3px 4px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.pal-dot {
+  width: 14px; height: 14px;
+  border: 1px solid #333;
+  flex-shrink: 0;
+}
+
+/* ── Export example ── */
+.export-box {
+  background: #06090c;
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: #7ab8d0;
+  overflow-x: auto;
+  line-height: 2;
+  margin: 10px 0;
+}
+
+/* ── Workflow steps ── */
+.steps {
+  counter-reset: step;
+  margin: 14px 0;
+}
+.step {
+  display: flex;
+  gap: 16px;
+  margin: 10px 0;
+  align-items: flex-start;
+}
+.step::before {
+  counter-increment: step;
+  content: counter(step, decimal-leading-zero);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 18px;
+  color: var(--green);
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.step-body { flex: 1; }
+.step-title { font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.step-desc { font-size: 13px; color: var(--text-mid); }
+
+/* ── Footer ── */
+footer {
+  margin-top: 64px;
+  padding: 24px 0;
+  border-top: 1px solid var(--border);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: center;
+  letter-spacing: 1px;
+  line-height: 2;
+}
+footer span { color: var(--green-dim); }
+
+/* ── Inline highlight ── */
+mark {
+  background: rgba(0,229,160,0.12);
+  color: var(--green);
+  padding: 1px 5px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+}
+em.hl { font-style: normal; color: var(--yellow); }
+
+/* ── Sticky top bar ── */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6,8,10,0.95);
+  border-bottom: 1px solid var(--border);
+  padding: 6px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  backdrop-filter: blur(4px);
+}
+.topbar-title { color: var(--green); letter-spacing: 2px; }
+.topbar-sep { color: var(--border2); }
+.topbar a { color: var(--text-dim); text-decoration: none; transition: color 0.1s; }
+.topbar a:hover { color: var(--green); }
+.topbar-spacer { flex: 1; }
+.topbar-lang {
+  display: flex;
+  gap: 6px;
+}
+.topbar-lang a {
+  padding: 2px 8px;
+  border: 1px solid var(--border2);
+  color: var(--text-dim);
+}
+.topbar-lang a:hover { border-color: var(--green-dim); color: var(--green); }
+
+/* ── Anim ── */
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.cursor::after {
+  content: '█';
+  font-family: 'Share Tech Mono', monospace;
+  animation: blink 1.1s step-end infinite;
+  color: var(--green);
+  font-size: 0.8em;
+  margin-left: 2px;
+}
+
+@media (max-width: 600px) {
+  .tool-grid { grid-template-columns: 1fr 1fr; }
+  .topbar { flex-wrap: wrap; gap: 6px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-title">PC-6001 GFX EDITOR</span>
+  <span class="topbar-sep">|</span>
+  <a href="#ja-top">日本語</a>
+  <span class="topbar-sep">·</span>
+  <a href="#en-top">English</a>
+  <div class="topbar-spacer"></div>
+  <span>v1.1</span>
+</div>
+
+<div class="page">
+
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-badge">DOCUMENTATION</div>
+  <h1 id="ja-top">PC-<em>6001</em> GRAPHICS EDITOR<span class="cursor"></span></h1>
+  <div class="hero-sub">仕様書 &amp; 利用マニュアル　／　Specification &amp; User Manual</div>
+  <div class="ver-tag">VERSION 1.1 — SINGLE FILE HTML — NO DEPENDENCIES</div>
+</div>
+
+<!-- TOC (JP) -->
+<div class="toc">
+  <div class="toc-title">◆ 目次</div>
+  <ol>
+    <li><a href="#ja-overview">概要</a></li>
+    <li><a href="#ja-screens">スクリーンモード仕様</a></li>
+    <li><a href="#ja-palette">パレット</a></li>
+    <li><a href="#ja-tools">描画ツール一覧</a></li>
+    <li><a href="#ja-usage">利用方法</a></li>
+    <li><a href="#ja-export">エクスポート形式</a></li>
+    <li><a href="#ja-keyboard">キーボードショートカット</a></li>
+    <li><a href="#ja-notes">注意事項</a></li>
+    <li><a href="#ja-changelog">バージョン履歴</a></li>
+  </ol>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     日本語ブロック
+══════════════════════════════════════ -->
+<div class="lang-block">
+
+<!-- 1. 概要 -->
+<section id="ja-overview">
+  <div class="sec-head">
+    <span class="sec-num">01</span>
+    <h2>概要</h2>
+  </div>
+
+  <p>
+    <strong>PC-6001 GFX Editor</strong> は、NEC PC-6001 の 3 種類のグラフィックスクリーンモードに対応した、ブラウザ上で動作するピクセルアートエディタです。
+    外部ライブラリへの依存は一切なく、HTML ファイル 1 枚で完結しています。
+  </p>
+  <p>
+    PC-6001 実機の VRAM 構造に準拠したデータ形式で、<em class="hl">PNG 画像</em>と<em class="hl">Z80 アセンブラ用 DB テキスト</em>の両方をエクスポートできます。
+    レトロゲーム開発・保存プロジェクト・同人ソフト制作などに活用できます。
+  </p>
+
+  <div class="card info">
+    <div class="card-head">ℹ SYSTEM REQUIREMENTS</div>
+    <p>モダンブラウザ（Chrome / Firefox / Safari / Edge 最新版）。インターネット接続不要。ローカルで開くだけで動作します。</p>
+  </div>
+</section>
+
+<!-- 2. スクリーンモード仕様 -->
+<section id="ja-screens">
+  <div class="sec-head">
+    <span class="sec-num">02</span>
+    <h2>スクリーンモード仕様</h2>
+  </div>
+
+  <p>
+    PC-6001 のグラフィックモードは 3 種類あります。エディタ上部のタブで切り替えます。
+    モードを切り替えると<em class="hl">画面データはリセット</em>されるため、事前に PNG / ASM をエクスポートしてください。
+  </p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>モード</th>
+          <th>解像度</th>
+          <th>キャラサイズ</th>
+          <th>グリッド</th>
+          <th>色指定単位</th>
+          <th>色数</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>SCREEN 1</td>
+          <td>128 × 192 px</td>
+          <td>8 × 8 px</td>
+          <td>16 × 24 chars</td>
+          <td>キャラクタ単位</td>
+          <td>FG/BG 各 16 色</td>
+        </tr>
+        <tr>
+          <td>SCREEN 2</td>
+          <td>128 × 192 px</td>
+          <td>8 × 1 px</td>
+          <td>16 × 192 行</td>
+          <td>行単位（8px 行ごと）</td>
+          <td>FG/BG 各 16 色（同行 2 色制限）</td>
+        </tr>
+        <tr>
+          <td>SCREEN 3</td>
+          <td>64 × 192 px</td>
+          <td>8 × 8 px</td>
+          <td>8 × 24 chars</td>
+          <td>キャラクタ単位</td>
+          <td>FG/BG 各 16 色</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub-head">SCREEN 1 — セミグラフィック標準モード</div>
+  <p>
+    最も汎用的なモード。8×8 ピクセルのキャラクタブロック単位で前景色（FG）と背景色（BG）を独立して設定できます。
+    BASICの <mark>SCREEN 1</mark> に相当。同一キャラクタ内は FG/BG の 2 色しか使えませんが、
+    キャラクタごとに異なる色ペアを設定できるため、実質的に高い表現力を持ちます。
+  </p>
+
+  <div class="sub-head">SCREEN 2 — ビットマップ（色衝突注意）</div>
+  <p>
+    ビットマップ形式で最も細かいドット制御が可能です。ただし<em class="hl">1 行（8px）につき FG・BG の 2 色しか使えない</em>制約があります。
+    これはハードウェアの仕様であり、同じ行に 3 色以上のピクセルを置くと色が崩れます（色衝突）。
+  </p>
+  <div class="card warn">
+    <div class="card-head">⚠ SCREEN 2 色衝突について</div>
+    <p>
+      エディタは各行の FG/BG 色をパレットで管理していますが、ピクセルを描いた際に自動的にその行の FG 色として扱います。
+      同じ行に異なる色を置きたい場合は、事前にパレットで FG/BG を設定してから描画してください。
+      色衝突が発生しているかどうかは、実機またはエミュレータで最終確認することを推奨します。
+    </p>
+  </div>
+
+  <div class="sub-head">SCREEN 3 — 低解像度カラーモード</div>
+  <p>
+    横解像度が 64px に半減する代わりに、SCREEN 1 と同様のキャラクタ単位色指定を維持します。
+    スプライト的なキャラクタを少ない情報量で表現するのに向いています。
+  </p>
+</section>
+
+<!-- 3. パレット -->
+<section id="ja-palette">
+  <div class="sec-head">
+    <span class="sec-num">03</span>
+    <h2>パレット</h2>
+  </div>
+
+  <p>
+    PC-6001 のパレットは 0〜15 番の固定 16 色です。エディタ右パネルに常時表示されています。
+    <em class="hl">左クリック</em>で前景色（FG）、<em class="hl">右クリック</em>で背景色（BG）を選択します。
+  </p>
+
+  <div class="pal-row">
+    <div class="pal-swatch"><div class="pal-dot" style="background:#000000"></div>0 黒</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#0000cc"></div>1 青</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#cc0000"></div>2 赤</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#cc00cc"></div>3 マゼンタ</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#00cc00"></div>4 緑</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#00cccc"></div>5 シアン</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#cccc00"></div>6 黄</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#cccccc"></div>7 白</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#000000; border-color:#555"></div>8 黒(dim)</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#0000ff"></div>9 明青</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#ff0000"></div>10 明赤</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#ff00ff"></div>11 明マゼンタ</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#00ff00"></div>12 明緑</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#00ffff"></div>13 明シアン</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#ffff00"></div>14 明黄</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#ffffff"></div>15 明白</div>
+  </div>
+
+  <div class="card tip">
+    <div class="card-head">◆ SCREEN 1/3 でのキャラクタ色設定</div>
+    <p>
+      ツールで <mark>C（キャラ選択）</mark> を選び、キャンバス上のキャラクタをクリックすると右パネルにそのキャラの 8×8 ビットグリッドが表示されます。
+      この状態でパレットの FG/BG を変更すると、選択中キャラクタの色が即時更新されます。
+    </p>
+  </div>
+</section>
+
+<!-- 4. 描画ツール -->
+<section id="ja-tools">
+  <div class="sec-head">
+    <span class="sec-num">04</span>
+    <h2>描画ツール一覧</h2>
+  </div>
+
+  <p>左端のツールバー、または以下のキーボードショートカットで選択します。<br>
+  <em class="hl">左クリック</em>＝FG色で描画　／　<em class="hl">右クリック</em>＝BG色で描画</p>
+
+  <div class="tool-grid">
+    <div class="tool-card">
+      <div class="tool-icon">✏️</div>
+      <div class="tool-name">ペン <kbd>P</kbd></div>
+      <div class="tool-desc">1ドット単位でフリーハンド描画。ドラッグで連続描画。</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">🧹</div>
+      <div class="tool-name">消しゴム <kbd>E</kbd></div>
+      <div class="tool-desc">BG色で塗りつぶします。実質ペンのBG描画と同等。</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">🪣</div>
+      <div class="tool-name">塗りつぶし <kbd>F</kbd></div>
+      <div class="tool-desc">クリックした点と同色の連続領域をFG色で塗り替えます（フラッドフィル）。</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">╱</div>
+      <div class="tool-name">直線 <kbd>L</kbd></div>
+      <div class="tool-desc">ドラッグでブレゼンハム直線を引きます。マウスアップで確定。</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">□</div>
+      <div class="tool-name">矩形（枠） <kbd>R</kbd></div>
+      <div class="tool-desc">ドラッグで矩形の枠線を描きます。</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">■</div>
+      <div class="tool-name">矩形（塗り） <kbd>Shift+R</kbd></div>
+      <div class="tool-desc">ドラッグで塗りつぶし矩形を描きます。</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">💧</div>
+      <div class="tool-name">スポイト <kbd>I</kbd></div>
+      <div class="tool-desc">クリックしたピクセルのパレット番号をFG色（右クリックはBG色）に取得。</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">⊞</div>
+      <div class="tool-name">キャラ選択 <kbd>C</kbd></div>
+      <div class="tool-desc">SCR1/3専用。クリックしたキャラクタを右パネルで編集可能にします。</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. 利用方法 -->
+<section id="ja-usage">
+  <div class="sec-head">
+    <span class="sec-num">05</span>
+    <h2>利用方法</h2>
+  </div>
+
+  <div class="sub-head">基本ワークフロー</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-body">
+        <div class="step-title">スクリーンモードを選択</div>
+        <div class="step-desc">ヘッダー上部の SCR1 / SCR2 / SCR3 タブをクリック。モード切り替え時はデータが消去されるため注意。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-body">
+        <div class="step-title">パレットで色を設定</div>
+        <div class="step-desc">右パネルのパレットを左クリック（FG）または右クリック（BG）で選択。SCR1/3 はキャラ選択ツールで各キャラの色を個別に設定可能。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-body">
+        <div class="step-title">ツールを選んで描画</div>
+        <div class="step-desc">ペン・塗りつぶし・直線・矩形などを駆使して作図。ズームはパネルの＋/−ボタンで変更。グリッド表示の ON/OFF も切り替え可能。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-body">
+        <div class="step-title">エクスポート</div>
+        <div class="step-desc">「PNG ダウンロード」で画像を、「ASM テキスト (DB)」でアセンブラ用テキストをそれぞれ保存。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-head">SCR1 / SCR3 — キャラクタ色の設定手順</div>
+  <ol class="doc-list">
+    <li>ツールバーで <kbd>C</kbd>（キャラ選択）を選ぶ</li>
+    <li>キャンバス上の編集したいキャラクタブロックをクリック</li>
+    <li>右パネルの「CHAR EDIT」に 8×8 グリッドが現れる</li>
+    <li>パレットで FG 色（左クリック）と BG 色（右クリック）を変更 → 即時反映</li>
+    <li>グリッドのセルを直接クリックして ON/OFF することも可能</li>
+  </ol>
+
+  <div class="sub-head">PNG の読み込み</div>
+  <p>
+    「PNG 読み込み…」ボタンで PNG ファイルを取り込めます。
+    読み込み時に各ピクセルの RGB 値を PC-6001 パレット 16 色の中から最近傍色に変換して表示します。
+    大きな画像は自動的に現在のモードの解像度（SCR1/2: 128×192、SCR3: 64×192）に縮小されます。
+  </p>
+
+  <div class="sub-head">Undo / Redo</div>
+  <p>
+    最大 50 段の Undo を保持しています。<kbd>Ctrl+Z</kbd> で Undo、<kbd>Ctrl+Y</kbd> で Redo。
+    右パネルの「↩ Undo」「↪ Redo」ボタンでも操作できます。
+    モード切り替えや全消去（CLR）はUndoスタックをリセットします。
+  </p>
+</section>
+
+<!-- 6. エクスポート形式 -->
+<section id="ja-export">
+  <div class="sec-head">
+    <span class="sec-num">06</span>
+    <h2>エクスポート形式</h2>
+  </div>
+
+  <div class="sub-head">PNG エクスポート</div>
+  <p>
+    実寸サイズ（SCR1/2: 128×192px、SCR3: 64×192px）の PNG ファイルを生成します。
+    ファイル名は <mark>pc6001_scr1.png</mark> のようにモード番号付きになります。
+    パレット色をそのまま使用した RGB PNG です。
+  </p>
+
+  <div class="sub-head">ASM テキスト エクスポート（SCR1 / SCR3）</div>
+  <p>
+    SCREEN 1 / 3 の場合、<em class="hl">パターンデータ</em>と<em class="hl">カラーデータ</em>を分けて出力します。
+  </p>
+  <pre><span class="comment">; PC-6001 SCREEN 1 VRAM Data</span>
+<span class="comment">; ── Pattern Data (3072 bytes) ──</span>
+<span class="label">GFX_PATTERN:</span>
+<span class="directive">    DB</span>  <span class="value">000H, 07EH, 042H, 042H, 042H, 07EH, 000H, 000H</span>  <span class="comment">; CHAR(0,0)</span>
+<span class="directive">    DB</span>  <span class="value">000H, 000H, 000H, 000H, 000H, 000H, 000H, 000H</span>  <span class="comment">; CHAR(1,0)</span>
+<span class="comment">    ...</span>
+<span class="comment">; ── Color Data (384 bytes, upper nibble=FG lower=BG) ──</span>
+<span class="label">GFX_COLOR:</span>
+<span class="directive">    DB</span>  <span class="value">070H, 070H, 070H, 070H, 070H, 070H, 070H, 070H</span></pre>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>セクション</th><th>サイズ (SCR1)</th><th>内容</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>GFX_PATTERN</td>
+          <td>16×24×8 = 3072 bytes</td>
+          <td>各キャラクタの 8 行 × 8 ビット。MSB = 左端ドット。</td>
+        </tr>
+        <tr>
+          <td>GFX_COLOR</td>
+          <td>16×24 = 384 bytes</td>
+          <td>上位 4 ビット = FG、下位 4 ビット = BG（パレット番号 0〜15）</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub-head">ASM テキスト エクスポート（SCR2）</div>
+  <p>
+    SCREEN 2 の場合、<em class="hl">ビットマップデータ</em>と<em class="hl">行カラーデータ</em>に分かれます。
+  </p>
+  <pre><span class="comment">; ── Bitmap Data (3072 bytes) ──</span>
+<span class="label">GFX_BITMAP:</span>
+<span class="directive">    DB</span>  <span class="value">0FFH, 000H, 07EH, 042H, 042H, 07EH, 000H, 0FFH</span>  <span class="comment">; Y=0</span>
+<span class="directive">    DB</span>  <span class="value">000H, 000H, 000H, 000H, 000H, 000H, 000H, 000H</span>  <span class="comment">; Y=1</span>
+<span class="comment">    ...</span>
+<span class="comment">; ── Color Data (192 bytes, upper nibble=FG lower=BG) ──</span>
+<span class="label">GFX_COLOR:</span>
+<span class="directive">    DB</span>  <span class="value">070H, 070H, 070H, 070H, 070H, 070H, 070H, 070H</span></pre>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>セクション</th><th>サイズ</th><th>内容</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>GFX_BITMAP</td>
+          <td>128/8 × 192 = 3072 bytes</td>
+          <td>各行 16 バイト。MSB = 左端ドット。1 = FG色ドット。</td>
+        </tr>
+        <tr>
+          <td>GFX_COLOR</td>
+          <td>192 bytes</td>
+          <td>行ごとの FG/BG 色（上位 4 ビット = FG）</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 7. キーボードショートカット -->
+<section id="ja-keyboard">
+  <div class="sec-head">
+    <span class="sec-num">07</span>
+    <h2>キーボードショートカット</h2>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>キー</th><th>機能</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><kbd>P</kbd></td><td>ペンツール</td></tr>
+        <tr><td><kbd>E</kbd></td><td>消しゴム</td></tr>
+        <tr><td><kbd>F</kbd></td><td>塗りつぶし</td></tr>
+        <tr><td><kbd>L</kbd></td><td>直線</td></tr>
+        <tr><td><kbd>R</kbd></td><td>矩形（枠）</td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>R</kbd></td><td>矩形（塗り）</td></tr>
+        <tr><td><kbd>I</kbd></td><td>スポイト</td></tr>
+        <tr><td><kbd>C</kbd></td><td>キャラ選択</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Undo（50段）</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Redo</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 8. 注意事項 -->
+<section id="ja-notes">
+  <div class="sec-head">
+    <span class="sec-num">08</span>
+    <h2>注意事項・既知の制限</h2>
+  </div>
+
+  <ul class="doc-list">
+    <li>本エディタは PC-6001 の VRAM 構造を参考にした<em class="hl">近似実装</em>です。実機との完全な互換性は保証しません。特に色表示は実機モニタとは異なる場合があります。</li>
+    <li>PNG 読み込み時のパレット変換は最近傍 RGB 距離によるため、元画像の再現精度には限界があります。</li>
+    <li>SCREEN 2 の色衝突制約はエディタ上では完全には強制されません。実機・エミュレータでの動作確認を推奨します。</li>
+    <li>データは<em class="hl">ブラウザセッション内のみ</em>保持されます。ページを閉じると失われます。作業が完了したら必ずエクスポートしてください。</li>
+    <li>ファイルの保存・読み込み機能（.gfxなど独自形式）は現バージョンでは未実装です。</li>
+  </ul>
+</section>
+
+<!-- 9. バージョン履歴 -->
+<section id="ja-changelog">
+  <div class="sec-head">
+    <span class="sec-num">09</span>
+    <h2>バージョン履歴</h2>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>バージョン</th><th>リリース</th><th>変更内容</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>v1.1</td>
+          <td>2026-04-01</td>
+          <td>
+            <strong>実アスペクト比対応</strong><br>
+            PC-6001 の TV/モニタ出力（4:3）に合わせてドット描画を修正。
+            SCREEN 1/2 はドット横幅を縦の2倍（2:1）、SCREEN 3 は4倍（4:1）に変更。
+            マウス座標逆変換・グリッド描画も同様に対応。
+            スクリーン情報パネルに「ドット比」を表示追加。
+          </td>
+        </tr>
+        <tr>
+          <td>v1.0</td>
+          <td>2026-04-01</td>
+          <td>
+            <strong>初期リリース</strong><br>
+            SCREEN 1 / 2 / 3 全モード対応。ペン・消しゴム・塗りつぶし・直線・矩形（枠/塗り）・スポイト・キャラ選択の8ツール実装。
+            PC-6001 固定16色パレット。Undo/Redo 50段。PNG・Z80 DB形式ASMエクスポート。
+            PNG読み込み（最近傍パレット変換）。グリッド表示 ON/OFF。ズーム ×1〜×8。
+            キーボードショートカット対応。シングルファイルHTML・外部依存なし。
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</div><!-- /lang-block JP -->
+
+
+<!-- ══════════════════════════════════════
+     LANGUAGE DIVIDER
+══════════════════════════════════════ -->
+<div class="lang-divider">
+  <div class="lang-divider-line"></div>
+  <div class="lang-divider-label">ENGLISH</div>
+  <div class="lang-divider-line"></div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     ENGLISH BLOCK
+══════════════════════════════════════ -->
+<div class="lang-block">
+
+<!-- TOC (EN) -->
+<div class="toc" id="en-top">
+  <div class="toc-title">◆ Table of Contents</div>
+  <ol>
+    <li><a href="#en-overview">Overview</a></li>
+    <li><a href="#en-screens">Screen Mode Specifications</a></li>
+    <li><a href="#en-palette">Palette</a></li>
+    <li><a href="#en-tools">Drawing Tools</a></li>
+    <li><a href="#en-usage">How to Use</a></li>
+    <li><a href="#en-export">Export Formats</a></li>
+    <li><a href="#en-keyboard">Keyboard Shortcuts</a></li>
+    <li><a href="#en-notes">Notes &amp; Known Limitations</a></li>
+    <li><a href="#en-changelog">Version History</a></li>
+  </ol>
+</div>
+
+<!-- 1. Overview -->
+<section id="en-overview">
+  <div class="sec-head">
+    <span class="sec-num">01</span>
+    <h2>Overview</h2>
+  </div>
+
+  <p>
+    <strong>PC-6001 GFX Editor</strong> is a browser-based pixel art editor that supports all three graphics screen modes of the NEC PC-6001 home computer.
+    It runs entirely from a single HTML file with no external dependencies.
+  </p>
+  <p>
+    The editor outputs data in a format faithful to the PC-6001's VRAM structure, exporting both <em class="hl">PNG images</em> and <em class="hl">Z80 assembler DB text</em>.
+    Suitable for retro game development, preservation projects, and homebrew software creation.
+  </p>
+
+  <div class="card info">
+    <div class="card-head">ℹ SYSTEM REQUIREMENTS</div>
+    <p>Any modern browser (Chrome / Firefox / Safari / Edge latest). No internet connection required. Just open the HTML file locally.</p>
+  </div>
+</section>
+
+<!-- 2. Screen Modes -->
+<section id="en-screens">
+  <div class="sec-head">
+    <span class="sec-num">02</span>
+    <h2>Screen Mode Specifications</h2>
+  </div>
+
+  <p>
+    The PC-6001 has three distinct graphics modes. Switch between them using the tabs at the top of the editor.
+    <em class="hl">Switching modes resets all canvas data</em> — export your work first.
+  </p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Mode</th>
+          <th>Resolution</th>
+          <th>Char Size</th>
+          <th>Grid</th>
+          <th>Color Unit</th>
+          <th>Colors</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>SCREEN 1</td>
+          <td>128 × 192 px</td>
+          <td>8 × 8 px</td>
+          <td>16 × 24 chars</td>
+          <td>Per character</td>
+          <td>FG + BG each 16 colors</td>
+        </tr>
+        <tr>
+          <td>SCREEN 2</td>
+          <td>128 × 192 px</td>
+          <td>8 × 1 px</td>
+          <td>16 × 192 rows</td>
+          <td>Per 8px row</td>
+          <td>2 colors per row (FG+BG)</td>
+        </tr>
+        <tr>
+          <td>SCREEN 3</td>
+          <td>64 × 192 px</td>
+          <td>8 × 8 px</td>
+          <td>8 × 24 chars</td>
+          <td>Per character</td>
+          <td>FG + BG each 16 colors</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub-head">SCREEN 1 — Standard Semi-Graphic Mode</div>
+  <p>
+    The most versatile mode. Foreground (FG) and background (BG) colors are assigned independently per 8×8 character block.
+    Equivalent to BASIC's <mark>SCREEN 1</mark>. While only 2 colors are available within a single character cell,
+    each character can have a different color pair, providing strong overall expressiveness.
+  </p>
+
+  <div class="sub-head">SCREEN 2 — Bitmap Mode (Beware of Color Clashing)</div>
+  <p>
+    Offers the finest dot-level control in bitmap format. However, <em class="hl">only FG and BG colors are allowed per 8-pixel row</em>.
+    This is a hardware limitation — placing 3 or more colors in the same row will cause color corruption (color clash).
+  </p>
+  <div class="card warn">
+    <div class="card-head">⚠ SCREEN 2 COLOR CLASH</div>
+    <p>
+      The editor tracks FG/BG per row in the palette, but does not fully enforce the 2-color hardware constraint during painting.
+      Set your row's FG and BG colors in the palette <em>before</em> drawing if you need color control per row.
+      Always verify the final result on real hardware or an emulator.
+    </p>
+  </div>
+
+  <div class="sub-head">SCREEN 3 — Low-Resolution Color Mode</div>
+  <p>
+    Horizontal resolution is halved to 64px, but character-unit color assignment (same as SCREEN 1) is retained.
+    Well-suited for sprite-like characters with minimal data.
+  </p>
+</section>
+
+<!-- 3. Palette -->
+<section id="en-palette">
+  <div class="sec-head">
+    <span class="sec-num">03</span>
+    <h2>Palette</h2>
+  </div>
+
+  <p>
+    The PC-6001 uses a fixed 16-color palette (indices 0–15), always visible in the right panel.
+    <em class="hl">Left-click</em> a swatch to set the foreground color (FG); <em class="hl">right-click</em> to set the background color (BG).
+  </p>
+
+  <div class="pal-row">
+    <div class="pal-swatch"><div class="pal-dot" style="background:#000000"></div>0 Black</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#0000cc"></div>1 Blue</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#cc0000"></div>2 Red</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#cc00cc"></div>3 Magenta</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#00cc00"></div>4 Green</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#00cccc"></div>5 Cyan</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#cccc00"></div>6 Yellow</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#cccccc"></div>7 White</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#000000; border-color:#555"></div>8 Black(dim)</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#0000ff"></div>9 Bright Blue</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#ff0000"></div>10 Bright Red</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#ff00ff"></div>11 Bright Magenta</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#00ff00"></div>12 Bright Green</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#00ffff"></div>13 Bright Cyan</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#ffff00"></div>14 Bright Yellow</div>
+    <div class="pal-swatch"><div class="pal-dot" style="background:#ffffff"></div>15 Bright White</div>
+  </div>
+
+  <div class="card tip">
+    <div class="card-head">◆ PER-CHARACTER COLOR (SCREEN 1/3)</div>
+    <p>
+      Select the <mark>C (Char Select)</mark> tool and click a character block on the canvas.
+      The right panel will show an 8×8 bit grid for that character.
+      Changing FG/BG in the palette instantly updates that character's colors.
+    </p>
+  </div>
+</section>
+
+<!-- 4. Drawing Tools -->
+<section id="en-tools">
+  <div class="sec-head">
+    <span class="sec-num">04</span>
+    <h2>Drawing Tools</h2>
+  </div>
+
+  <p>Select tools from the left toolbar or via keyboard shortcuts.<br>
+  <em class="hl">Left-click</em> = draw with FG color　／　<em class="hl">Right-click</em> = draw with BG color</p>
+
+  <div class="tool-grid">
+    <div class="tool-card">
+      <div class="tool-icon">✏️</div>
+      <div class="tool-name">Pen <kbd>P</kbd></div>
+      <div class="tool-desc">Freehand drawing one pixel at a time. Hold and drag for continuous strokes.</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">🧹</div>
+      <div class="tool-name">Eraser <kbd>E</kbd></div>
+      <div class="tool-desc">Paints with BG color, effectively erasing. Functionally equivalent to pen in BG mode.</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">🪣</div>
+      <div class="tool-name">Fill <kbd>F</kbd></div>
+      <div class="tool-desc">Flood-fills a contiguous region of the same color with the current FG color.</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">╱</div>
+      <div class="tool-name">Line <kbd>L</kbd></div>
+      <div class="tool-desc">Drag to draw a Bresenham line. Confirms on mouse release.</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">□</div>
+      <div class="tool-name">Rectangle <kbd>R</kbd></div>
+      <div class="tool-desc">Drag to draw an outlined rectangle.</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">■</div>
+      <div class="tool-name">Filled Rect <kbd>Shift+R</kbd></div>
+      <div class="tool-desc">Drag to draw a solid filled rectangle.</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">💧</div>
+      <div class="tool-name">Eyedropper <kbd>I</kbd></div>
+      <div class="tool-desc">Picks the palette index of the clicked pixel as FG (right-click = BG).</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">⊞</div>
+      <div class="tool-name">Char Select <kbd>C</kbd></div>
+      <div class="tool-desc">SCR1/3 only. Click a character block to open it in the per-character editor.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. How to Use -->
+<section id="en-usage">
+  <div class="sec-head">
+    <span class="sec-num">05</span>
+    <h2>How to Use</h2>
+  </div>
+
+  <div class="sub-head">Basic Workflow</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-body">
+        <div class="step-title">Choose a Screen Mode</div>
+        <div class="step-desc">Click SCR1 / SCR2 / SCR3 tabs at the top. Note: switching modes clears all canvas data.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-body">
+        <div class="step-title">Set Colors in the Palette</div>
+        <div class="step-desc">Left-click a swatch for FG, right-click for BG. In SCR1/3, use the Char Select tool to assign colors per character block.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-body">
+        <div class="step-title">Draw with Tools</div>
+        <div class="step-desc">Use pen, fill, line, and rectangle tools to create your graphic. Adjust zoom level and toggle grid visibility in the right panel.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-body">
+        <div class="step-title">Export Your Work</div>
+        <div class="step-desc">Click "PNG ダウンロード" for a PNG image, or "ASM テキスト (DB)" for an assembler-ready text file.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-head">Setting Per-Character Colors (SCR1 / SCR3)</div>
+  <ol class="doc-list">
+    <li>Select the <kbd>C</kbd> (Char Select) tool from the toolbar</li>
+    <li>Click on any character block on the canvas</li>
+    <li>The "CHAR EDIT" 8×8 grid appears in the right panel</li>
+    <li>Left-click a palette swatch to change FG, right-click for BG — instantly reflected</li>
+    <li>You can also click individual cells in the 8×8 grid to toggle pixels on/off</li>
+  </ol>
+
+  <div class="sub-head">Loading a PNG</div>
+  <p>
+    Click "PNG 読み込み…" to import a PNG file. Each pixel's RGB value is mapped to the nearest PC-6001 palette color.
+    Images larger than the current mode's resolution (SCR1/2: 128×192, SCR3: 64×192) are scaled down automatically.
+  </p>
+
+  <div class="sub-head">Undo / Redo</div>
+  <p>
+    Up to 50 undo steps are kept in memory. Use <kbd>Ctrl+Z</kbd> to undo and <kbd>Ctrl+Y</kbd> to redo.
+    The "↩ Undo" and "↪ Redo" buttons in the right panel provide the same functionality.
+    The undo stack is cleared when switching modes or using the "CLR" (clear all) function.
+  </p>
+</section>
+
+<!-- 6. Export Formats -->
+<section id="en-export">
+  <div class="sec-head">
+    <span class="sec-num">06</span>
+    <h2>Export Formats</h2>
+  </div>
+
+  <div class="sub-head">PNG Export</div>
+  <p>
+    Generates a PNG at native resolution (128×192 for SCR1/2, 64×192 for SCR3).
+    The filename is <mark>pc6001_scr1.png</mark> (mode number appended).
+    Colors are rendered using the PC-6001 palette RGB values directly.
+  </p>
+
+  <div class="sub-head">ASM Text Export — SCREEN 1 / SCREEN 3</div>
+  <p>
+    Outputs <em class="hl">pattern data</em> and <em class="hl">color data</em> as separate labeled blocks.
+  </p>
+  <pre><span class="comment">; PC-6001 SCREEN 1 VRAM Data</span>
+<span class="comment">; ── Pattern Data (3072 bytes) ──</span>
+<span class="label">GFX_PATTERN:</span>
+<span class="directive">    DB</span>  <span class="value">000H, 07EH, 042H, 042H, 042H, 07EH, 000H, 000H</span>  <span class="comment">; CHAR(0,0)</span>
+<span class="directive">    DB</span>  <span class="value">000H, 000H, 000H, 000H, 000H, 000H, 000H, 000H</span>  <span class="comment">; CHAR(1,0)</span>
+<span class="comment">    ...</span>
+<span class="comment">; ── Color Data (384 bytes) ──</span>
+<span class="label">GFX_COLOR:</span>
+<span class="directive">    DB</span>  <span class="value">070H, 070H, ...</span>  <span class="comment">; upper nibble=FG, lower nibble=BG</span></pre>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>Section</th><th>Size (SCR1)</th><th>Contents</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>GFX_PATTERN</td>
+          <td>16×24×8 = 3072 bytes</td>
+          <td>8 rows × 8 bits per character. MSB = leftmost pixel.</td>
+        </tr>
+        <tr>
+          <td>GFX_COLOR</td>
+          <td>16×24 = 384 bytes</td>
+          <td>Upper 4 bits = FG index, Lower 4 bits = BG index (0–15).</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub-head">ASM Text Export — SCREEN 2</div>
+  <p>
+    Outputs <em class="hl">bitmap data</em> and <em class="hl">row color data</em>.
+  </p>
+  <pre><span class="comment">; ── Bitmap Data (3072 bytes) ──</span>
+<span class="label">GFX_BITMAP:</span>
+<span class="directive">    DB</span>  <span class="value">0FFH, 000H, ...</span>  <span class="comment">; Y=0, 16 bytes per row</span>
+<span class="comment">; ── Color Data (192 bytes) ──</span>
+<span class="label">GFX_COLOR:</span>
+<span class="directive">    DB</span>  <span class="value">070H, ...</span>  <span class="comment">; per row: upper nibble=FG, lower=BG</span></pre>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>Section</th><th>Size</th><th>Contents</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>GFX_BITMAP</td>
+          <td>128/8 × 192 = 3072 bytes</td>
+          <td>16 bytes per row. MSB = leftmost pixel. 1 = FG dot.</td>
+        </tr>
+        <tr>
+          <td>GFX_COLOR</td>
+          <td>192 bytes (1 per row)</td>
+          <td>Upper 4 bits = FG index, Lower 4 bits = BG index.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 7. Keyboard Shortcuts -->
+<section id="en-keyboard">
+  <div class="sec-head">
+    <span class="sec-num">07</span>
+    <h2>Keyboard Shortcuts</h2>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>Key</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><kbd>P</kbd></td><td>Pen tool</td></tr>
+        <tr><td><kbd>E</kbd></td><td>Eraser</td></tr>
+        <tr><td><kbd>F</kbd></td><td>Flood fill</td></tr>
+        <tr><td><kbd>L</kbd></td><td>Line tool</td></tr>
+        <tr><td><kbd>R</kbd></td><td>Rectangle (outline)</td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>R</kbd></td><td>Rectangle (filled)</td></tr>
+        <tr><td><kbd>I</kbd></td><td>Eyedropper</td></tr>
+        <tr><td><kbd>C</kbd></td><td>Character select</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Undo (up to 50 steps)</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Redo</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 8. Notes -->
+<section id="en-notes">
+  <div class="sec-head">
+    <span class="sec-num">08</span>
+    <h2>Notes &amp; Known Limitations</h2>
+  </div>
+
+  <ul class="doc-list">
+    <li>This editor is an <em class="hl">approximate implementation</em> based on the PC-6001 VRAM structure. Full hardware compatibility is not guaranteed. Color rendering may differ from an actual monitor.</li>
+    <li>PNG import uses nearest-neighbor RGB distance for palette conversion; faithfulness to the original image is limited.</li>
+    <li>SCREEN 2 color clash constraints are not fully enforced in the editor. Always verify on real hardware or an emulator.</li>
+    <li>Data is held <em class="hl">in browser memory only</em> and will be lost when the page is closed. Always export before closing.</li>
+    <li>A native project file save/load feature (custom format) is not yet implemented.</li>
+  </ul>
+</section>
+
+<!-- 9. Version History -->
+<section id="en-changelog">
+  <div class="sec-head">
+    <span class="sec-num">09</span>
+    <h2>Version History</h2>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>Version</th><th>Released</th><th>Changes</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>v1.1</td>
+          <td>2026-04-01</td>
+          <td>
+            <strong>Correct pixel aspect ratio</strong><br>
+            Pixel rendering now matches the PC-6001's actual TV/monitor output (4:3 screen).
+            SCREEN 1/2 dots are drawn 2× wider than tall (2:1); SCREEN 3 dots are 4× wider (4:1).
+            Mouse coordinate inverse-transform and grid drawing updated accordingly.
+            "Dot ratio" added to the Screen Info panel.
+          </td>
+        </tr>
+        <tr>
+          <td>v1.0</td>
+          <td>2026-04-01</td>
+          <td>
+            <strong>Initial release</strong><br>
+            Full support for SCREEN 1 / 2 / 3 modes. Eight drawing tools: pen, eraser, flood fill, line, rectangle (outline/filled), eyedropper, character select.
+            Fixed 16-color PC-6001 palette. Undo/Redo up to 50 steps. PNG and Z80 DB-format ASM export.
+            PNG import with nearest-neighbor palette conversion. Grid display toggle. Zoom ×1–×8.
+            Full keyboard shortcut support. Single-file HTML, no external dependencies.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</div><!-- /lang-block EN -->
+
+<footer>
+  PC-6001 GFX EDITOR &nbsp;—&nbsp; <span>v1.1</span> &nbsp;|&nbsp; Single-file HTML / No dependencies<br>
+  NEC PC-6001 is a trademark of NEC Corporation. This tool is an independent fan project.
+</footer>
+
+</div><!-- /page -->
+</body>
+</html>
