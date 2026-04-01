@@ -59,6 +59,7 @@ Or use **GitHub Pages** directly:
 
 |Version|Date      |Changes                                                                                                       |
 |-------|----------|--------------------------------------------------------------------------------------------------------------|
+|v1.5   |2026-04-01|Fix single-color block detection — `second <= 0` was wrong; corrected to `second === -1`                      |
 |v1.4   |2026-04-01|Fix single-color block — FG=BG case now forces BG to black/white for contrast                                 |
 |v1.3   |2026-04-01|PNG/JPEG import overhaul — per-character top-2 color auto-detection for FG/BG; fixed solid-color rendering bug|
 |v1.2   |2026-04-01|Fix PNG import bug — palette index was collapsed to 0/1, causing all pixels to render as FG color             |
@@ -126,13 +127,14 @@ git clone https://github.com/gikonekos/pc6001-gfx-editor.git
 
 ## バージョン履歴
 
-|バージョン|日付        |変更内容                                              |
-|-----|----------|--------------------------------------------------|
-|v1.4 |2026-04-01|単色ブロック問題修正 — FG=BGになる場合にBGを黒/白に強制してコントラスト確保       |
-|v1.3 |2026-04-01|PNG/JPEG読み込み大幅改善 — キャラ単位で上位2色を自動検出しFG/BG設定、緑一色バグ修正|
-|v1.2 |2026-04-01|PNG読み込みバグ修正 — パレット番号が0/1に潰れ全ピクセルがFG色になる問題を修正      |
-|v1.1 |2026-04-01|実アスペクト比対応（SCR1/2 は 2:1、SCR3 は 4:1）                |
-|v1.0 |2026-04-01|初期リリース                                            |
+|バージョン|日付        |変更内容                                                |
+|-----|----------|----------------------------------------------------|
+|v1.5 |2026-04-01|単色ブロック判定バグ修正 — `second <= 0` が誤り、`second === -1` に修正|
+|v1.4 |2026-04-01|単色ブロック問題修正 — FG=BGになる場合にBGを黒/白に強制してコントラスト確保         |
+|v1.3 |2026-04-01|PNG/JPEG読み込み大幅改善 — キャラ単位で上位2色を自動検出しFG/BG設定、緑一色バグ修正  |
+|v1.2 |2026-04-01|PNG読み込みバグ修正 — パレット番号が0/1に潰れ全ピクセルがFG色になる問題を修正        |
+|v1.1 |2026-04-01|実アスペクト比対応（SCR1/2 は 2:1、SCR3 は 4:1）                  |
+|v1.0 |2026-04-01|初期リリース                                              |
 
 -----
 
