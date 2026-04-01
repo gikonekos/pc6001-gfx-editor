@@ -10,7 +10,7 @@ No install, no dependencies — open the HTML file and start drawing.
 ## Screenshot
 
 <!-- Add screenshot here -->
-![PC-6001 GFX Editor screenshot](screenshot.png)
+![PC-6001 GFX Editor screenshot](img/screenshot.png)
 
 ---
 
