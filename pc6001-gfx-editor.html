@@ -281,7 +281,7 @@
     <button class="mode-tab" data-mode="3">SCR3<br><small>64×192 15c</small></button>
   </div>
   <div class="hbar"></div>
-  <div style="font-size:10px; color:var(--text-dim);">PC-6001 GRAPHICS EDITOR v1.5</div>
+  <div style="font-size:10px; color:var(--text-dim);">PC-6001 GRAPHICS EDITOR v1.6</div>
 </div>
 
 <div id="mode-info">SCREEN 1 — 128×192px — セミグラフィック — 16×24 chars — 各キャラクタ独立色</div>
@@ -368,8 +368,15 @@
       <div class="rpanel-label">EXPORT</div>
       <button class="action-btn primary" id="btn-png">PNG ダウンロード</button>
       <button class="action-btn primary" id="btn-asm">ASM テキスト (DB)</button>
-      <button class="action-btn" id="btn-load-png">PNG 読み込み…</button>
-      <input type="file" id="file-input" accept="image/png" style="display:none">
+      <div style="height:4px"></div>
+      <div class="rpanel-label">SAVE / LOAD</div>
+      <button class="action-btn primary" id="btn-p6g-save">.p6g 保存（編集状態）</button>
+      <button class="action-btn" id="btn-p6g-load">.p6g 読込（編集状態を復元）</button>
+      <input type="file" id="p6g-input" accept=".p6g" style="display:none">
+      <div style="height:4px"></div>
+      <div class="rpanel-label">IMAGE IMPORT</div>
+      <button class="action-btn" id="btn-load-png">画像読み込み… (PNG/JPEG等)</button>
+      <input type="file" id="file-input" accept="image/*" style="display:none">
     </div>
 
     <!-- Grid toggle -->
@@ -988,6 +995,101 @@ document.getElementById('btn-asm').addEventListener('click', () => {
   a.href = URL.createObjectURL(blob);
   a.download = `pc6001_scr${mode}.asm`;
   a.click();
+});
+
+// ─────────────────────────────────────────────
+// .p6g 保存 / 読込  （編集状態の完全保存・復元）
+// format: pc6001-gfx / version: 1
+// ─────────────────────────────────────────────
+
+// .p6g 保存
+document.getElementById('btn-p6g-save').addEventListener('click', () => {
+  const md = MODES[mode];
+  const data = {
+    format: 'pc6001-gfx',
+    version: 1,
+    mode: mode,
+    pixels: Array.from(pixels),
+    charColors: charColors.map(c => ({ fg: c.fg, bg: c.bg }))
+  };
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `pc6001_scr${mode}.p6g`;
+  a.click();
+});
+
+// .p6g 読込
+document.getElementById('btn-p6g-load').addEventListener('click', () => {
+  document.getElementById('p6g-input').click();
+});
+document.getElementById('p6g-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    let data;
+    try {
+      data = JSON.parse(ev.target.result);
+    } catch {
+      alert('.p6g 読込エラー: JSON の解析に失敗しました。');
+      return;
+    }
+
+    // 妥当性チェック
+    if (data.format !== 'pc6001-gfx') {
+      alert('.p6g 読込エラー: 対応していないファイル形式です。');
+      return;
+    }
+    if (data.version !== 1) {
+      alert(`.p6g 読込エラー: 非対応のバージョンです (version=${data.version})。`);
+      return;
+    }
+    if (![1, 2, 3].includes(data.mode)) {
+      alert(`.p6g 読込エラー: mode の値が不正です (mode=${data.mode})。`);
+      return;
+    }
+    const md = MODES[data.mode];
+    const expectedPixels = md.w * md.h;
+    const expectedChars  = md.cols * md.rows;
+    if (!Array.isArray(data.pixels) || data.pixels.length !== expectedPixels) {
+      alert(`.p6g 読込エラー: pixels の長さが不正です (期待値=${expectedPixels}, 実際=${data.pixels?.length})。`);
+      return;
+    }
+    if (!Array.isArray(data.charColors) || data.charColors.length !== expectedChars) {
+      alert(`.p6g 読込エラー: charColors の長さが不正です (期待値=${expectedChars}, 実際=${data.charColors?.length})。`);
+      return;
+    }
+    for (let i = 0; i < data.charColors.length; i++) {
+      const c = data.charColors[i];
+      if (typeof c.fg !== 'number' || c.fg < 0 || c.fg > 15 ||
+          typeof c.bg !== 'number' || c.bg < 0 || c.bg > 15) {
+        alert(`.p6g 読込エラー: charColors[${i}] の fg/bg 値が不正です。`);
+        return;
+      }
+    }
+
+    // 復元
+    if (data.mode !== mode) {
+      if (!confirm(`保存時のモード (SCREEN ${data.mode}) に切り替えて読み込みます。現在のデータは消えます。続けますか？`)) {
+        e.target.value = '';
+        return;
+      }
+    }
+    pushUndo();
+    mode = data.mode;
+    pixels = new Uint8Array(data.pixels);
+    charColors = data.charColors.map(c => ({ fg: c.fg, bg: c.bg }));
+    undoStack = [];
+    redoStack = [];
+    updateModeUI();
+    resizeCanvases();
+    render();
+    updateCharGrid();
+    document.getElementById('sb-undo').textContent = 0;
+  };
+  reader.readAsText(file);
+  e.target.value = '';
 });
 
 // ─────────────────────────────────────────────

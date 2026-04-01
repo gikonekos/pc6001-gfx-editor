@@ -3,34 +3,36 @@
 **Browser-based pixel art editor for the NEC PC-6001 home computer.**  
 No install, no dependencies — open the HTML file and start drawing.
 
-🎨 **[Open Editor](https://gikonekos.github.io/pc6001-gfx-editor/pc6001-gfx-editor.html)**  |  📖 **[Manual](https://gikonekos.github.io/pc6001-gfx-editor/pc6001-gfx-editor-manual.html)**
+🎨 **[Open Editor](https://gikonekos.github.io/pc6001-gfx-editor/pc6001-gfx-editor.html)** &nbsp;|&nbsp; 📖 **[Manual](https://gikonekos.github.io/pc6001-gfx-editor/pc6001-gfx-editor-manual.html)**
 
------
+---
 
 ## Screenshot
 
 <!-- Add screenshot here -->
-
 ![PC-6001 GFX Editor screenshot](img/screenshot.png)
 
------
+---
 
 ## Features
 
 - **3 Screen Modes** — SCREEN 1 (128×192, 15 colors), SCREEN 2 (128×192, 2 colors/row), SCREEN 3 (64×192, 15 colors)
-- **Correct pixel aspect ratio** — matches PC-6001’s actual 4:3 TV output (2:1 for SCR1/2, 4:1 for SCR3)
+- **Correct pixel aspect ratio** — matches PC-6001's actual 4:3 TV output (2:1 for SCR1/2, 4:1 for SCR3)
 - **8 Drawing tools** — Pen, Eraser, Flood Fill, Line, Rectangle (outline/filled), Eyedropper, Character Select
 - **Per-character color editing** — 8×8 character grid editor for SCREEN 1/3
 - **Fixed 16-color palette** — faithful to PC-6001 hardware
-- **PNG export** — native resolution output
+- **.p6g save / load** — saves complete edit state (pixels, FG/BG colors, mode); fully restored on reload
+- **PNG export** — native resolution output *(display image only, not an edit state save)*
 - **Z80 ASM export** — `DB` byte format, pattern data + color data separated
-- **PNG import** — nearest-neighbor palette conversion
+- **Image import** — accepts PNG, JPEG and other browser-supported formats; converted to SCREEN 1 constraints
 - **Undo / Redo** — 50 steps
 - **Zoom** — ×1 to ×8
 - **Keyboard shortcuts** — P / E / F / L / R / I / C / Ctrl+Z / Ctrl+Y
 - **Single HTML file** — zero dependencies, works fully offline
 
------
+> **Note:** All exported files (PNG, ASM, .p6g) are saved to your browser's default download folder. The save destination cannot be selected due to browser security restrictions.
+
+---
 
 ## Usage
 
@@ -43,47 +45,50 @@ Open `pc6001-gfx-editor.html` in any modern browser. No server required.
 Or use **GitHub Pages** directly:  
 `https://gikonekos.github.io/pc6001-gfx-editor/pc6001-gfx-editor.html`
 
------
+---
 
 ## Files
 
-|File                           |Description                        |
-|-------------------------------|-----------------------------------|
-|`pc6001-gfx-editor.html`       |Editor application                 |
-|`pc6001-gfx-editor-manual.html`|Specification & user manual (EN/JP)|
-|`README.md`                    |This file                          |
+| File | Description |
+|------|-------------|
+| `pc6001-gfx-editor.html` | Editor application |
+| `pc6001-gfx-editor-manual.html` | Specification & user manual (EN/JP) |
+| `README.md` | This file |
 
------
+> **Edit state** is saved as `.p6g` (JSON). **PNG** is a display image export only — reloading a PNG re-analyzes the image and does not restore manually set FG/BG information.
+
+---
 
 ## Changelog
 
-|Version|Date      |Changes                                                                                                       |
-|-------|----------|--------------------------------------------------------------------------------------------------------------|
-|v1.5   |2026-04-01|Fix single-color block detection — `second <= 0` was wrong; corrected to `second === -1`                      |
-|v1.4   |2026-04-01|Fix single-color block — FG=BG case now forces BG to black/white for contrast                                 |
-|v1.3   |2026-04-01|PNG/JPEG import overhaul — per-character top-2 color auto-detection for FG/BG; fixed solid-color rendering bug|
-|v1.2   |2026-04-01|Fix PNG import bug — palette index was collapsed to 0/1, causing all pixels to render as FG color             |
-|v1.1   |2026-04-01|Correct pixel aspect ratio (2:1 for SCR1/2, 4:1 for SCR3)                                                     |
-|v1.0   |2026-04-01|Initial release                                                                                               |
+| Version | Date | Changes |
+|---------|------|---------|
+| v1.6 | 2026-04-01 | Add .p6g edit state save/load; clarify PNG export meaning; rename image import button; expand accepted image formats |
+| v1.5 | 2026-04-01 | Fix single-color block detection — `second <= 0` was wrong; corrected to `second === -1` |
+| v1.4 | 2026-04-01 | Fix single-color block — FG=BG case now forces BG to black/white for contrast |
+| v1.3 | 2026-04-01 | PNG/JPEG import overhaul — per-character top-2 color auto-detection for FG/BG; fixed solid-color rendering bug |
+| v1.2 | 2026-04-01 | Fix PNG import bug — palette index was collapsed to 0/1, causing all pixels to render as FG color |
+| v1.1 | 2026-04-01 | Correct pixel aspect ratio (2:1 for SCR1/2, 4:1 for SCR3) |
+| v1.0 | 2026-04-01 | Initial release |
 
------
+---
 
 ## License
 
-MIT License — see <LICENSE> for details.
+MIT License — see [LICENSE](LICENSE) for details.
 
------
+---
 
------
+---
 
 # PC-6001 GFX エディタ
 
 **NEC PC-6001 用ブラウザベースのピクセルアートエディタ。**  
 インストール不要・外部依存なし。HTML ファイルを開くだけで動作します。
 
-🎨 **[エディタを開く](https://gikonekos.github.io/pc6001-gfx-editor/pc6001-gfx-editor.html)**  |  📖 **[マニュアル](https://gikonekos.github.io/pc6001-gfx-editor/pc6001-gfx-editor-manual.html)**
+🎨 **[エディタを開く](https://gikonekos.github.io/pc6001-gfx-editor/pc6001-gfx-editor.html)** &nbsp;|&nbsp; 📖 **[マニュアル](https://gikonekos.github.io/pc6001-gfx-editor/pc6001-gfx-editor-manual.html)**
 
------
+---
 
 ## 機能一覧
 
@@ -100,7 +105,7 @@ MIT License — see <LICENSE> for details.
 - **キーボードショートカット** — P / E / F / L / R / I / C / Ctrl+Z / Ctrl+Y
 - **シングルファイル HTML** — 外部依存なし、完全オフライン動作
 
------
+---
 
 ## 使い方
 
@@ -113,31 +118,32 @@ git clone https://github.com/gikonekos/pc6001-gfx-editor.git
 または **GitHub Pages** から直接：  
 `https://gikonekos.github.io/pc6001-gfx-editor/pc6001-gfx-editor.html`
 
------
+---
 
 ## ファイル構成
 
-|ファイル                           |内容             |
-|-------------------------------|---------------|
-|`pc6001-gfx-editor.html`       |エディタ本体         |
-|`pc6001-gfx-editor-manual.html`|仕様書・利用マニュアル（日英）|
-|`README.md`                    |このファイル         |
+| ファイル | 内容 |
+|----------|------|
+| `pc6001-gfx-editor.html` | エディタ本体 |
+| `pc6001-gfx-editor-manual.html` | 仕様書・利用マニュアル（日英） |
+| `README.md` | このファイル |
 
------
+---
 
 ## バージョン履歴
 
-|バージョン|日付        |変更内容                                                |
-|-----|----------|----------------------------------------------------|
-|v1.5 |2026-04-01|単色ブロック判定バグ修正 — `second <= 0` が誤り、`second === -1` に修正|
-|v1.4 |2026-04-01|単色ブロック問題修正 — FG=BGになる場合にBGを黒/白に強制してコントラスト確保         |
-|v1.3 |2026-04-01|PNG/JPEG読み込み大幅改善 — キャラ単位で上位2色を自動検出しFG/BG設定、緑一色バグ修正  |
-|v1.2 |2026-04-01|PNG読み込みバグ修正 — パレット番号が0/1に潰れ全ピクセルがFG色になる問題を修正        |
-|v1.1 |2026-04-01|実アスペクト比対応（SCR1/2 は 2:1、SCR3 は 4:1）                  |
-|v1.0 |2026-04-01|初期リリース                                              |
+| バージョン | 日付 | 変更内容 |
+|------------|------|----------|
+| v1.6 | 2026-04-01 | .p6g 編集状態保存/読込追加・PNG保存の意味を明示・画像読み込みボタン改名・対応形式拡張 |
+| v1.5 | 2026-04-01 | 単色ブロック判定バグ修正 — `second <= 0` が誤り、`second === -1` に修正 |
+| v1.4 | 2026-04-01 | 単色ブロック問題修正 — FG=BGになる場合にBGを黒/白に強制してコントラスト確保 |
+| v1.3 | 2026-04-01 | PNG/JPEG読み込み大幅改善 — キャラ単位で上位2色を自動検出しFG/BG設定、緑一色バグ修正 |
+| v1.2 | 2026-04-01 | PNG読み込みバグ修正 — パレット番号が0/1に潰れ全ピクセルがFG色になる問題を修正 |
+| v1.1 | 2026-04-01 | 実アスペクト比対応（SCR1/2 は 2:1、SCR3 は 4:1） |
+| v1.0 | 2026-04-01 | 初期リリース |
 
------
+---
 
 ## ライセンス
 
-MIT License — 詳細は <LICENSE> をご覧ください。
+MIT License — 詳細は [LICENSE](LICENSE) をご覧ください。

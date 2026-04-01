@@ -466,7 +466,7 @@ em.hl { font-style: normal; color: var(--yellow); }
   <span class="topbar-sep">·</span>
   <a href="#en-top">English</a>
   <div class="topbar-spacer"></div>
-  <span>v1.5</span>
+  <span>v1.6</span>
 </div>
 
 <div class="page">
@@ -478,7 +478,7 @@ em.hl { font-style: normal; color: var(--yellow); }
   <div class="hero-badge">DOCUMENTATION</div>
   <h1 id="ja-top">PC-<em>6001</em> GRAPHICS EDITOR<span class="cursor"></span></h1>
   <div class="hero-sub">仕様書 &amp; 利用マニュアル　／　Specification &amp; User Manual</div>
-  <div class="ver-tag">VERSION 1.5 — SINGLE FILE HTML — NO DEPENDENCIES</div>
+  <div class="ver-tag">VERSION 1.6 — SINGLE FILE HTML — NO DEPENDENCIES</div>
 </div>
 
 <!-- TOC (JP) -->
@@ -744,12 +744,18 @@ em.hl { font-style: normal; color: var(--yellow); }
     <li>グリッドのセルを直接クリックして ON/OFF することも可能</li>
   </ol>
 
-  <div class="sub-head">PNG の読み込み</div>
+  <div class="sub-head">画像読み込み（PNG / JPEG など）</div>
   <p>
-    「PNG 読み込み…」ボタンで PNG ファイルを取り込めます。
-    読み込み時に各ピクセルの RGB 値を PC-6001 パレット 16 色の中から最近傍色に変換して表示します。
+    「画像読み込み…」ボタンで画像ファイルを取り込めます。
+    ブラウザが対応する画像形式（PNG・JPEG など）を広く読み込めます。
+    読み込み時に各ピクセルの RGB 値を PC-6001 パレット 16 色の中から最近傍色に変換し、
+    8×8 キャラクタブロック単位で FG/BG を自動設定します。
     大きな画像は自動的に現在のモードの解像度（SCR1/2: 128×192、SCR3: 64×192）に縮小されます。
   </p>
+  <div class="card warn">
+    <div class="card-head">⚠ 画像読み込みの注意</div>
+    <p>読み込んだ画像は「そのまま保持」されるのではなく、SCREEN 1 の制約（128×192、8×8 キャラクタ単位、2色、固定16色パレット）に変換されます。元の画像が完全に再現されるわけではありません。</p>
+  </div>
 
   <div class="sub-head">Undo / Redo</div>
   <p>
@@ -766,11 +772,27 @@ em.hl { font-style: normal; color: var(--yellow); }
     <h2>エクスポート形式</h2>
   </div>
 
+  <div class="sub-head">.p6g 保存 / 読込（編集状態の完全保存）</div>
+  <p>
+    <mark>.p6g 保存</mark> ボタンで編集状態をそのまま保存できます。
+    ピクセルデータ・各キャラクタの FG/BG 色・スクリーンモードをすべて保持するため、
+    再読込み時に完全に同じ状態を復元できます。
+    作業の中断・再開にはこの形式を使用してください。
+  </p>
+  <div class="card tip">
+    <div class="card-head">◆ PNG 保存と .p6g 保存の違い</div>
+    <p>
+      <strong>.p6g</strong> = 編集状態の保存。FG/BG・ピクセルデータをすべて保持。再読込みで完全復元できます。<br>
+      <strong>PNG</strong> = 表示画像のエクスポート。見た目の画像のみ保存。再読込み時は画像から再解析されるため、手動設定した FG/BG 情報は復元されません。
+    </p>
+  </div>
+
   <div class="sub-head">PNG エクスポート</div>
   <p>
     実寸サイズ（SCR1/2: 128×192px、SCR3: 64×192px）の PNG ファイルを生成します。
     ファイル名は <mark>pc6001_scr1.png</mark> のようにモード番号付きになります。
     パレット色をそのまま使用した RGB PNG です。
+    <em class="hl">PNG 保存は編集状態の保存ではなく、表示画像のエクスポートです。</em>編集状態の保存には .p6g 形式を使用してください。
   </p>
 
   <div class="sub-head">ASM テキスト エクスポート（SCR1 / SCR3）</div>
@@ -880,8 +902,9 @@ em.hl { font-style: normal; color: var(--yellow); }
     <li>本エディタは PC-6001 の VRAM 構造を参考にした<em class="hl">近似実装</em>です。実機との完全な互換性は保証しません。特に色表示は実機モニタとは異なる場合があります。</li>
     <li>PNG 読み込み時のパレット変換は最近傍 RGB 距離によるため、元画像の再現精度には限界があります。</li>
     <li>SCREEN 2 の色衝突制約はエディタ上では完全には強制されません。実機・エミュレータでの動作確認を推奨します。</li>
-    <li>データは<em class="hl">ブラウザセッション内のみ</em>保持されます。ページを閉じると失われます。作業が完了したら必ずエクスポートしてください。</li>
-    <li>ファイルの保存・読み込み機能（.gfxなど独自形式）は現バージョンでは未実装です。</li>
+    <li>データは<em class="hl">ブラウザセッション内のみ</em>保持されます。ページを閉じると失われます。作業が完了したら必ず <mark>.p6g 保存</mark> でエクスポートしてください。</li>
+    <li><em class="hl">PNG 保存は編集状態の保存ではありません。</em>PNG 再読込み時は画像から再解析されるため、手動設定した FG/BG 情報やキャラクタ編集内容は復元されません。編集状態の保存・復元には .p6g 形式を使用してください。</li>
+    <li>SCR2 / SCR3 を含む全機能のデバッグ・検証は継続中です。</li>
   </ul>
 </section>
 
@@ -898,6 +921,18 @@ em.hl { font-style: normal; color: var(--yellow); }
         <tr><th>バージョン</th><th>リリース</th><th>変更内容</th></tr>
       </thead>
       <tbody>
+        <tr>
+          <td>v1.6</td>
+          <td>2026-04-01</td>
+          <td>
+            <strong>仕様明確化版 / .p6g 編集保存形式を追加</strong><br>
+            アルゴリズム変更なし。
+            .p6g 形式（JSON）による編集状態の完全保存・復元機能を追加（pixels[] + charColors[] + mode を保持）。
+            PNG保存は編集保存ではなく表示画像のエクスポートである旨を明示。
+            画像読み込みボタンを「画像読み込み…」に改名し accept="image/*" に変更。
+            SCR2 / SCR3 を含む全機能の検証は継続中。
+          </td>
+        </tr>
         <tr>
           <td>v1.5</td>
           <td>2026-04-01</td>
@@ -1236,11 +1271,16 @@ em.hl { font-style: normal; color: var(--yellow); }
     <li>You can also click individual cells in the 8×8 grid to toggle pixels on/off</li>
   </ol>
 
-  <div class="sub-head">Loading a PNG</div>
+  <div class="sub-head">Loading Images (PNG / JPEG etc.)</div>
   <p>
-    Click "PNG 読み込み…" to import a PNG file. Each pixel's RGB value is mapped to the nearest PC-6001 palette color.
+    Click "画像読み込み…" to import an image. The editor accepts a wide range of image formats supported by your browser (PNG, JPEG, etc.).
+    Each pixel's RGB value is mapped to the nearest PC-6001 palette color, and FG/BG colors are auto-assigned per 8×8 character block.
     Images larger than the current mode's resolution (SCR1/2: 128×192, SCR3: 64×192) are scaled down automatically.
   </p>
+  <div class="card warn">
+    <div class="card-head">⚠ Image Import Note</div>
+    <p>Imported images are not preserved as-is. They are converted to SCREEN 1 constraints (128×192, 8×8 character blocks, 2 colors per block, fixed 16-color palette). The original image cannot be fully reproduced.</p>
+  </div>
 
   <div class="sub-head">Undo / Redo</div>
   <p>
@@ -1257,11 +1297,24 @@ em.hl { font-style: normal; color: var(--yellow); }
     <h2>Export Formats</h2>
   </div>
 
+  <div class="sub-head">.p6g Save / Load (Full Edit State)</div>
+  <p>
+    Click <mark>.p6g 保存</mark> to save your complete editing state. All pixel data, per-character FG/BG colors, and screen mode are preserved. Reloading the file restores the session exactly as it was. Use this format whenever you need to pause and resume work.
+  </p>
+  <div class="card tip">
+    <div class="card-head">◆ PNG vs .p6g</div>
+    <p>
+      <strong>.p6g</strong> = Edit state save. Preserves all FG/BG and pixel data. Fully restored on reload.<br>
+      <strong>PNG</strong> = Display image export. Saves the visual result only. Reloading re-analyzes the image — manually set FG/BG information is not restored.
+    </p>
+  </div>
+
   <div class="sub-head">PNG Export</div>
   <p>
     Generates a PNG at native resolution (128×192 for SCR1/2, 64×192 for SCR3).
     The filename is <mark>pc6001_scr1.png</mark> (mode number appended).
     Colors are rendered using the PC-6001 palette RGB values directly.
+    <em class="hl">PNG export is not an edit state save.</em> Use .p6g format to preserve your editing session.
   </p>
 
   <div class="sub-head">ASM Text Export — SCREEN 1 / SCREEN 3</div>
@@ -1367,10 +1420,11 @@ em.hl { font-style: normal; color: var(--yellow); }
 
   <ul class="doc-list">
     <li>This editor is an <em class="hl">approximate implementation</em> based on the PC-6001 VRAM structure. Full hardware compatibility is not guaranteed. Color rendering may differ from an actual monitor.</li>
-    <li>PNG import uses nearest-neighbor RGB distance for palette conversion; faithfulness to the original image is limited.</li>
+    <li>Image import uses nearest-neighbor RGB distance for palette conversion; faithfulness to the original image is limited.</li>
     <li>SCREEN 2 color clash constraints are not fully enforced in the editor. Always verify on real hardware or an emulator.</li>
-    <li>Data is held <em class="hl">in browser memory only</em> and will be lost when the page is closed. Always export before closing.</li>
-    <li>A native project file save/load feature (custom format) is not yet implemented.</li>
+    <li>Data is held <em class="hl">in browser memory only</em> and will be lost when the page is closed. Always save with <mark>.p6g 保存</mark> before closing.</li>
+    <li><em class="hl">PNG export is not an edit state save.</em> Reloading a PNG re-analyzes the image — manually set FG/BG information and character edits are not restored. Use .p6g format to save and restore your editing session.</li>
+    <li>Debugging and verification of all features including SCR2 / SCR3 is ongoing.</li>
   </ul>
 </section>
 
@@ -1387,6 +1441,18 @@ em.hl { font-style: normal; color: var(--yellow); }
         <tr><th>Version</th><th>Released</th><th>Changes</th></tr>
       </thead>
       <tbody>
+        <tr>
+          <td>v1.6</td>
+          <td>2026-04-01</td>
+          <td>
+            <strong>Spec clarification / .p6g edit state format added</strong><br>
+            No algorithm changes.
+            Added .p6g (JSON) save/load for complete edit state preservation (pixels[] + charColors[] + mode).
+            Clarified that PNG export is a display image export, not an edit state save.
+            Renamed image import button and expanded accepted formats to image/*.
+            Verification of all features including SCR2 / SCR3 is ongoing.
+          </td>
+        </tr>
         <tr>
           <td>v1.5</td>
           <td>2026-04-01</td>
@@ -1452,7 +1518,7 @@ em.hl { font-style: normal; color: var(--yellow); }
 </div><!-- /lang-block EN -->
 
 <footer>
-  PC-6001 GFX EDITOR &nbsp;—&nbsp; <span>v1.5</span> &nbsp;|&nbsp; Single-file HTML / No dependencies<br>
+  PC-6001 GFX EDITOR &nbsp;—&nbsp; <span>v1.6</span> &nbsp;|&nbsp; Single-file HTML / No dependencies<br>
   NEC PC-6001 is a trademark of NEC Corporation. This tool is an independent fan project.
 </footer>
 
