@@ -466,7 +466,7 @@ em.hl { font-style: normal; color: var(--yellow); }
   <span class="topbar-sep">·</span>
   <a href="#en-top">English</a>
   <div class="topbar-spacer"></div>
-  <span>v1.4</span>
+  <span>v1.5</span>
 </div>
 
 <div class="page">
@@ -478,7 +478,7 @@ em.hl { font-style: normal; color: var(--yellow); }
   <div class="hero-badge">DOCUMENTATION</div>
   <h1 id="ja-top">PC-<em>6001</em> GRAPHICS EDITOR<span class="cursor"></span></h1>
   <div class="hero-sub">仕様書 &amp; 利用マニュアル　／　Specification &amp; User Manual</div>
-  <div class="ver-tag">VERSION 1.4 — SINGLE FILE HTML — NO DEPENDENCIES</div>
+  <div class="ver-tag">VERSION 1.5 — SINGLE FILE HTML — NO DEPENDENCIES</div>
 </div>
 
 <!-- TOC (JP) -->
@@ -898,6 +898,15 @@ em.hl { font-style: normal; color: var(--yellow); }
         <tr><th>バージョン</th><th>リリース</th><th>変更内容</th></tr>
       </thead>
       <tbody>
+        <tr>
+          <td>v1.5</td>
+          <td>2026-04-01</td>
+          <td>
+            <strong>単色ブロック判定バグ修正</strong><br>
+            v1.4の修正で使用した <code>second &lt;= 0</code> が誤りで、2色ある場合も単色と判定していた。
+            正しくは <code>second === -1</code>（初期値のまま＝2位色なし）に修正。
+          </td>
+        </tr>
         <tr>
           <td>v1.4</td>
           <td>2026-04-01</td>
@@ -1379,6 +1388,15 @@ em.hl { font-style: normal; color: var(--yellow); }
       </thead>
       <tbody>
         <tr>
+          <td>v1.5</td>
+          <td>2026-04-01</td>
+          <td>
+            <strong>Fix single-color block detection bug</strong><br>
+            v1.4 used <code>second &lt;= 0</code> which incorrectly treated 2-color blocks as single-color.
+            Corrected to <code>second === -1</code> (initial value = no second color found).
+          </td>
+        </tr>
+        <tr>
           <td>v1.4</td>
           <td>2026-04-01</td>
           <td>
@@ -1434,7 +1452,7 @@ em.hl { font-style: normal; color: var(--yellow); }
 </div><!-- /lang-block EN -->
 
 <footer>
-  PC-6001 GFX EDITOR &nbsp;—&nbsp; <span>v1.4</span> &nbsp;|&nbsp; Single-file HTML / No dependencies<br>
+  PC-6001 GFX EDITOR &nbsp;—&nbsp; <span>v1.5</span> &nbsp;|&nbsp; Single-file HTML / No dependencies<br>
   NEC PC-6001 is a trademark of NEC Corporation. This tool is an independent fan project.
 </footer>
 

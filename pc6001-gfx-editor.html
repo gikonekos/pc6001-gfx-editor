@@ -281,7 +281,7 @@
     <button class="mode-tab" data-mode="3">SCR3<br><small>64×192 15c</small></button>
   </div>
   <div class="hbar"></div>
-  <div style="font-size:10px; color:var(--text-dim);">PC-6001 GRAPHICS EDITOR v1.4</div>
+  <div style="font-size:10px; color:var(--text-dim);">PC-6001 GRAPHICS EDITOR v1.5</div>
 </div>
 
 <div id="mode-info">SCREEN 1 — 128×192px — セミグラフィック — 16×24 chars — 各キャラクタ独立色</div>
@@ -1054,9 +1054,8 @@ document.getElementById('file-input').addEventListener('change', e => {
           if (freq[i] > first)  { second = first; bg = fg; first = freq[i]; fg = i; }
           else if (freq[i] > second) { second = freq[i]; bg = i; }
         }
-        // If only one color in block (fg==bg or second never set),
-        // use fg as-is and force bg to black (0) or white (7) for contrast
-        if (fg === bg || second <= 0) {
+        // If only one color exists in block, force BG to black (or white) for contrast
+        if (fg === bg || second === -1) {
           bg = (fg === 0) ? 7 : 0;
         }
         // Store char color
