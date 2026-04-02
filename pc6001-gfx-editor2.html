@@ -132,13 +132,11 @@ body {
 /* ── Canvas area ── */
 #canvas-area {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: #080600;
   overflow: auto;
+  padding: 16px;
 }
-#canvas-wrap { position: relative; image-rendering: pixelated; }
+#canvas-wrap { position: relative; image-rendering: pixelated; display: inline-block; }
 #main-canvas { display: block; image-rendering: pixelated; cursor: crosshair; }
 #grid-canvas {
   position: absolute; top: 0; left: 0;
