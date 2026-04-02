@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PC-6001 GFX Editor v2 — 仕様書 / Manual</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700&display=swap');
+
+:root {
+  --bg: #0e0b07;
+  --paper: #110e08;
+  --card: #161109;
+  --border: #2e2416;
+  --border2: #3e3020;
+  --amber: #ffb830;
+  --amber-dim: #996e1a;
+  --amber-bright: #ffd070;
+  --red: #ff4d2e;
+  --cyan: #30d4c8;
+  --green: #44cc66;
+  --text: #c8a870;
+  --text-dim: #5a4820;
+  --text-mid: #8a6830;
+  --scan: rgba(255,184,48,0.012);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, var(--scan) 2px, var(--scan) 4px);
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  line-height: 1.75;
+  min-height: 100vh;
+}
+
+.page { max-width: 860px; margin: 0 auto; padding: 0 20px 80px; }
+
+/* Hero */
+.hero {
+  padding: 48px 0 32px;
+  border-bottom: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: 'PC-6001';
+  position: absolute; right: -10px; top: 10px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 120px; color: rgba(255,184,48,0.04);
+  letter-spacing: -4px; pointer-events: none; user-select: none;
+}
+.hero-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; color: var(--amber-dim); letter-spacing: 3px; margin-bottom: 8px;
+}
+.hero h1 {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(20px, 4vw, 34px);
+  color: var(--amber); letter-spacing: 2px; line-height: 1.2;
+  text-shadow: 0 0 18px rgba(255,184,48,0.3);
+  margin-bottom: 6px;
+}
+.hero h1 em { color: var(--red); font-style: normal; }
+.hero-sub { font-size: 13px; color: var(--text-dim); font-family: 'Share Tech Mono', monospace; letter-spacing: 1px; margin-top: 8px; }
+.ver-tag {
+  display: inline-flex; gap: 8px; margin-top: 14px;
+}
+.ver-tag span {
+  padding: 2px 10px;
+  font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 1px;
+}
+.ver-tag .v { border: 1px solid var(--amber-dim); color: var(--amber); }
+.ver-tag .s { border: 1px solid var(--cyan); color: var(--cyan); }
+.ver-tag .d { border: 1px solid var(--red); color: var(--red); }
+
+/* v1 vs v2 notice */
+.v2-notice {
+  background: #100a00;
+  border: 1px solid var(--amber-dim);
+  border-left: 3px solid var(--amber);
+  padding: 14px 18px;
+  margin: 28px 0;
+  font-size: 13px;
+}
+.v2-notice-head {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; color: var(--amber); letter-spacing: 2px; margin-bottom: 8px;
+}
+
+/* TOC */
+.toc {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--amber);
+  padding: 16px 22px; margin: 28px 0;
+  font-family: 'Share Tech Mono', monospace; font-size: 12px;
+}
+.toc-title { color: var(--amber); letter-spacing: 2px; margin-bottom: 8px; }
+.toc ol { padding-left: 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-mid); text-decoration: none; transition: color 0.15s; }
+.toc a:hover { color: var(--amber); }
+
+/* Section */
+section { margin: 40px 0; scroll-margin-top: 20px; }
+.sec-head {
+  display: flex; align-items: baseline; gap: 12px;
+  margin-bottom: 14px; padding-bottom: 7px;
+  border-bottom: 1px solid var(--border);
+}
+.sec-num { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--amber-dim); letter-spacing: 1px; }
+.sec-head h2 { font-size: 17px; font-weight: 700; color: var(--amber); letter-spacing: 1px; }
+
+.sub-head {
+  font-family: 'Share Tech Mono', monospace; font-size: 12px;
+  color: var(--red); letter-spacing: 2px;
+  margin: 22px 0 9px; padding-left: 10px;
+  border-left: 2px solid var(--red);
+}
+
+p { margin: 8px 0; color: var(--text); }
+
+/* Table */
+.tbl-wrap { overflow-x: auto; margin: 12px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: 'Share Tech Mono', monospace; }
+thead tr { background: #120e06; border-bottom: 1px solid var(--amber-dim); }
+thead th { padding: 7px 11px; text-align: left; color: var(--amber); font-weight: 400; letter-spacing: 1px; white-space: nowrap; }
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+tbody tr:hover { background: #130f07; }
+tbody td { padding: 6px 11px; color: var(--text-mid); vertical-align: top; }
+tbody td:first-child { color: var(--amber-bright); white-space: nowrap; }
+
+kbd {
+  display: inline-block; padding: 1px 7px;
+  background: #1a1408; border: 1px solid var(--border2);
+  border-bottom: 2px solid #080600;
+  border-radius: 3px;
+  font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--amber-bright);
+}
+
+pre {
+  background: #080600; border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan);
+  padding: 14px 16px;
+  font-family: 'Share Tech Mono', monospace; font-size: 12px;
+  color: #c8d4c0; overflow-x: auto; line-height: 1.8; margin: 12px 0;
+}
+pre .comment { color: var(--text-dim); }
+pre .label { color: var(--amber); }
+pre .directive { color: var(--red); }
+pre .value { color: var(--cyan); }
+
+.card { background: var(--card); border: 1px solid var(--border); padding: 14px 18px; margin: 12px 0; }
+.card.warn { border-color: var(--red); border-left: 3px solid var(--red); background: #100600; }
+.card.warn .card-head { color: var(--red); }
+.card.info { border-color: var(--cyan); border-left: 3px solid var(--cyan); background: #060c0e; }
+.card.info .card-head { color: var(--cyan); }
+.card.tip { border-color: var(--amber-dim); border-left: 3px solid var(--amber); background: #0e0900; }
+.card.tip .card-head { color: var(--amber); }
+.card-head { font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 2px; margin-bottom: 5px; }
+
+ul.doc-list, ol.doc-list { padding-left: 20px; margin: 8px 0; }
+ul.doc-list li, ol.doc-list li { margin: 4px 0; color: var(--text); }
+ul.doc-list li::marker { color: var(--amber-dim); }
+
+mark { background: rgba(255,184,48,0.12); color: var(--amber); padding: 1px 5px; font-family: 'Share Tech Mono', monospace; font-size: 12px; }
+em.hl { font-style: normal; color: var(--cyan); }
+
+/* Lang divider */
+.lang-divider {
+  display: flex; align-items: center; gap: 14px;
+  margin: 52px 0 38px;
+}
+.lang-divider-line { flex: 1; height: 1px; background: var(--border2); }
+.lang-divider-label {
+  font-family: 'Share Tech Mono', monospace; font-size: 11px;
+  letter-spacing: 3px; color: var(--red);
+  padding: 4px 14px; border: 1px solid var(--red); white-space: nowrap;
+}
+
+/* Topbar */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(14,11,7,0.95);
+  border-bottom: 1px solid var(--border);
+  padding: 5px 20px;
+  display: flex; align-items: center; gap: 12px;
+  font-family: 'Share Tech Mono', monospace; font-size: 11px;
+  color: var(--text-dim);
+  backdrop-filter: blur(4px);
+}
+.topbar-title { color: var(--amber); letter-spacing: 2px; }
+.topbar-sep { color: var(--border2); }
+.topbar a { color: var(--text-dim); text-decoration: none; transition: color 0.1s; }
+.topbar a:hover { color: var(--amber); }
+.topbar-spacer { flex: 1; }
+
+footer {
+  margin-top: 60px; padding: 22px 0;
+  border-top: 1px solid var(--border);
+  font-family: 'Share Tech Mono', monospace; font-size: 11px;
+  color: var(--text-dim); text-align: center; letter-spacing: 1px; line-height: 2;
+}
+footer span { color: var(--amber-dim); }
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.cursor::after { content:'█'; font-family:'Share Tech Mono',monospace; animation:blink 1.1s step-end infinite; color:var(--amber); font-size:0.8em; margin-left:2px; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-title">PC-6001 GFX EDITOR v2</span>
+  <span class="topbar-sep">|</span>
+  <a href="#ja-top">日本語</a>
+  <span class="topbar-sep">·</span>
+  <a href="#en-top">English</a>
+  <div class="topbar-spacer"></div>
+  <span>v2.0 — HARDWARE SPEC</span>
+</div>
+
+<div class="page">
+
+<div class="hero">
+  <div class="hero-badge">DOCUMENTATION — v2 HARDWARE SPEC EDITION</div>
+  <h1 id="ja-top">PC-<em>6001</em> GFX EDITOR v2<span class="cursor"></span></h1>
+  <div class="hero-sub">仕様書 &amp; 利用マニュアル　／　Specification &amp; User Manual</div>
+  <div class="ver-tag">
+    <span class="v">v2.0</span>
+    <span class="s">HARDWARE SPEC COMPLIANT</span>
+    <span class="d">v1系とは別ファイル</span>
+  </div>
+</div>
+
+<!-- v1 vs v2 notice -->
+<div class="v2-notice">
+  <div class="v2-notice-head">◆ v1系との違いについて</div>
+  <p>
+    <strong>v1系（pc6001-gfx-editor.html）</strong>は独自仕様のエイプリルフール版として別途公開されています。
+    v1系は実機VRAMとは異なる独自のモード番号・色数・データ構造を採用しています。<br>
+    <strong>v2系（本ファイル）</strong>は、実機VRAM仕様に準拠した再設計版です。
+    モード番号・色セット・データ構造・ASM出力がすべて実機仕様に基づいています。
+    v2.0は「正しい実機モデルを立て直した最初の版」であり、機能を追い込んだ完成版ではありません。
+  </p>
+</div>
+
+<!-- TOC JP -->
+<div class="toc">
+  <div class="toc-title">◆ 目次</div>
+  <ol>
+    <li><a href="#ja-overview">概要</a></li>
+    <li><a href="#ja-screens">スクリーンモード仕様（実機準拠）</a></li>
+    <li><a href="#ja-vram">VRAM構造</a></li>
+    <li><a href="#ja-palette">パレット・色セット</a></li>
+    <li><a href="#ja-tools">描画ツール</a></li>
+    <li><a href="#ja-usage">利用方法</a></li>
+    <li><a href="#ja-export">エクスポート形式</a></li>
+    <li><a href="#ja-keyboard">キーボードショートカット</a></li>
+    <li><a href="#ja-notes">注意事項・制限</a></li>
+    <li><a href="#ja-changelog">バージョン履歴</a></li>
+  </ol>
+</div>
+
+<!-- 1. 概要 -->
+<section id="ja-overview">
+  <div class="sec-head"><span class="sec-num">01</span><h2>概要</h2></div>
+  <p>
+    <strong>PC-6001 GFX Editor v2</strong> は、NEC PC-6001 の実機VRAM仕様に準拠したブラウザベースのグラフィックエディタです。
+    実機の SCREEN 1〜4、アトリビュート構造、色セット定義に基づいて設計されています。
+  </p>
+  <div class="card info">
+    <div class="card-head">ℹ 仕様出典</div>
+    <p>本エディタの実機仕様は <a href="https://000.la.coocan.jp/p6/tech.html#vram" style="color:var(--cyan)">https://000.la.coocan.jp/p6/tech.html#vram</a> を参照しています。</p>
+  </div>
+  <div class="card warn">
+    <div class="card-head">⚠ v2.0 は実機準拠の土台版です</div>
+    <p>v2.0 は実機モデルの正確な立て直しを優先した初版です。SCREEN 1のキャラクタ表示・セミグラフィックの完全な編集機能・画像変換の品質追い込みなどは v2.1 以降で対応予定です。</p>
+  </div>
+</section>
+
+<!-- 2. スクリーンモード -->
+<section id="ja-screens">
+  <div class="sec-head"><span class="sec-num">02</span><h2>スクリーンモード仕様（実機準拠）</h2></div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>モード</th><th>BASIC SCREEN</th><th>解像度</th><th>色仕様</th><th>データ構造</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>SCREEN 1</td><td>SCREEN 1</td><td>32×16 キャラクタ</td>
+          <td>CSS=0: 白/白反転<br>CSS=1: 緑/緑反転</td>
+          <td>ATTR 512B + DATA 512B</td>
+        </tr>
+        <tr>
+          <td>SCREEN 2</td><td>SCREEN 2</td><td>64×48 セミグラフィック</td>
+          <td>CSS=0: 黒+緑/黄/青/赤<br>CSS=1: 黒+白/シアン/マゼンタ/橙</td>
+          <td>ATTR 512B + DATA 512B</td>
+        </tr>
+        <tr>
+          <td>SCREEN 3</td><td>SCREEN 3</td><td>128×192 4色グラフィック</td>
+          <td>CSS=0: 緑/黄/青/赤<br>CSS=1: 白/シアン/マゼンタ/橙</td>
+          <td>ATTR 512B + DATA 6144B<br>2bit/dot, 32B/line</td>
+        </tr>
+        <tr>
+          <td>SCREEN 4</td><td>SCREEN 4</td><td>256×192 2色グラフィック</td>
+          <td>CSS=0: 黒/緑<br>CSS=1: 黒/白</td>
+          <td>ATTR 512B + DATA 6144B<br>1bit/dot, 32B/line</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card tip">
+    <div class="card-head">◆ v1系との主な違い</div>
+    <p>v1系の「SCR1/SCR2/SCR3」は実機のSCREEN番号と対応していませんでした。v2系では実機のSCREEN 1〜4をそのまま使用しています。また v1系の「15色」は実機仕様に存在せず、v2系では CSS ビットによる 4色×2セット（またはモード固有の色定義）を採用しています。</p>
+  </div>
+</section>
+
+<!-- 3. VRAM構造 -->
+<section id="ja-vram">
+  <div class="sec-head"><span class="sec-num">03</span><h2>VRAM構造</h2></div>
+
+  <p>
+    PC-6001 の VRAM は先頭 <em class="hl">512バイトがアトリビュート</em>、
+    それ以降がデータ領域という構造を持ちます。
+  </p>
+
+  <div class="sub-head">アトリビュート (先頭512B)</div>
+  <p>
+    アトリビュートは 32×16 = 512 バイトで、画面の 32 列 × 16 行（または 16 ライン間隔の区画）に対応します。
+    各バイトのビット構成は以下の通りです。
+  </p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>bit</th><th>名前</th><th>意味</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>7</td><td>#A/G</td><td>0=テキスト系, 1=グラフィック系</td></tr>
+        <tr><td>6</td><td>#A/S</td><td>テキスト時: 0=キャラクタ, 1=セミグラフィック</td></tr>
+        <tr><td>5</td><td>#INT/EXT</td><td>キャラクタ時: 0=内部フォント, 1=外部フォント(CGROM)</td></tr>
+        <tr><td>4-2</td><td>GM0,GM1,GM2</td><td>グラフィック解像度選択</td></tr>
+        <tr><td>1</td><td>CSS</td><td>カラーセット選択 (0 or 1)</td></tr>
+        <tr><td>0</td><td>INV</td><td>キャラクタ反転</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>SCREENモード</th><th>アトリビュート値</th></tr></thead>
+      <tbody>
+        <tr><td>SCREEN 1 (外部フォント)</td><td>0x24 (CSS=0) / 0x26 (CSS=1)</td></tr>
+        <tr><td>SCREEN 2 (64×48セミ)</td><td>0x60 (CSS=0) / 0x62 (CSS=1)</td></tr>
+        <tr><td>SCREEN 3 (128×192カラー)</td><td>0x8C (CSS=0) / 0x8E (CSS=1)</td></tr>
+        <tr><td>SCREEN 4 (256×192モノクロ)</td><td>0xDC (CSS=0) / 0xDE (CSS=1)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub-head">データ領域 (512B以降)</div>
+  <p>SCREEN 1/2 はキャラコード/セミグラフィックデータ各 512B。SCREEN 3/4 は 32B × 192行 = 6144B のビットマップデータです。</p>
+
+  <p>グラフィックモードでは、アトリビュートは 32 列 × 16ライン単位で画面を制御します。横方向には列単位で分割できますが、縦方向は 16 ライン単位でしか分割できません。</p>
+</section>
+
+<!-- 4. パレット -->
+<section id="ja-palette">
+  <div class="sec-head"><span class="sec-num">04</span><h2>パレット・色セット</h2></div>
+
+  <p>
+    色はスクリーンモードと CSS ビットの組み合わせで決まります。右パネルの <mark>CSS=0 / CSS=1</mark> ボタンで切り替えます。
+  </p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>モード</th><th>CSS=0</th><th>CSS=1</th></tr></thead>
+      <tbody>
+        <tr><td>SCREEN 1</td><td>白 / 白反転</td><td>緑 / 緑反転</td></tr>
+        <tr><td>SCREEN 2</td><td>黒・緑・黄・青・赤</td><td>黒・白・シアン・マゼンタ・橙</td></tr>
+        <tr><td>SCREEN 3</td><td>緑・黄・青・赤</td><td>白・シアン・マゼンタ・橙</td></tr>
+        <tr><td>SCREEN 4</td><td>黒・緑</td><td>黒・白</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>パレットは左クリック=FG色、右クリック=BG色を選択します。</p>
+</section>
+
+<!-- 5. 描画ツール -->
+<section id="ja-tools">
+  <div class="sec-head"><span class="sec-num">05</span><h2>描画ツール</h2></div>
+  <p>左クリック=FG色で描画 / 右クリック=BG色で描画</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>ツール</th><th>キー</th><th>説明</th><th>対応モード</th></tr></thead>
+      <tbody>
+        <tr><td>✏️ ペン</td><td><kbd>P</kbd></td><td>1ドット単位フリーハンド</td><td>SCR3/4</td></tr>
+        <tr><td>🧹 消しゴム</td><td><kbd>E</kbd></td><td>BG色で塗りつぶし</td><td>SCR3/4</td></tr>
+        <tr><td>🪣 塗りつぶし</td><td><kbd>F</kbd></td><td>フラッドフィル</td><td>SCR3/4</td></tr>
+        <tr><td>╱ 直線</td><td><kbd>L</kbd></td><td>ブレゼンハム直線</td><td>SCR3/4</td></tr>
+        <tr><td>□ 矩形（枠）</td><td><kbd>R</kbd></td><td>矩形の枠線</td><td>SCR3/4</td></tr>
+        <tr><td>■ 矩形（塗り）</td><td><kbd>Shift+R</kbd></td><td>塗りつぶし矩形</td><td>SCR3/4</td></tr>
+        <tr><td>💧 スポイト</td><td><kbd>I</kbd></td><td>色の取得</td><td>SCR3/4</td></tr>
+        <tr><td>⊞ アトリビュート選択</td><td><kbd>C</kbd></td><td>アトリビュート表示・SCR1/2の簡易編集</td><td>全モード</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card warn">
+    <div class="card-head">⚠ v2.0 の描画対応状況</div>
+    <p>ドット単位の描画は SCREEN 3 / SCREEN 4 のみフル対応しています。SCREEN 1 / 2 のキャラクタ・セミグラフィック編集は v2.0 では簡易表示のみです。完全な編集機能は v2.1 以降で対応予定です。</p>
+  </div>
+</section>
+
+<!-- 6. 利用方法 -->
+<section id="ja-usage">
+  <div class="sec-head"><span class="sec-num">06</span><h2>利用方法</h2></div>
+
+  <div class="sub-head">基本ワークフロー（SCREEN 3 / 4）</div>
+  <ol class="doc-list">
+    <li>上部タブで SCR3 または SCR4 を選択</li>
+    <li>CSS ボタンでカラーセット（CSS=0 / CSS=1）を選択</li>
+    <li>パレットで FG/BG 色を設定（左クリック=FG、右クリック=BG）</li>
+    <li>ツールを選んで描画</li>
+    <li><mark>.p6g 保存</mark> で編集状態を保存 / <mark>PNG ダウンロード</mark> で画像出力 / <mark>ASM</mark> で実機VRAM形式テキスト出力</li>
+  </ol>
+
+  <div class="sub-head">画像読み込み（SCREEN 3 / 4 のみ）</div>
+  <p>
+    「画像読み込み…」で PNG / JPEG 等を取り込めます。現在のモードと CSS の色セットに最近傍変換されます。
+    SCREEN 1 / 2 への画像読み込みは v2.0 では非対応です。
+  </p>
+
+  <div class="sub-head">アトリビュートグリッド</div>
+  <p>
+    右パネルの「属性グリッド」で、アトリビュートの区切りを可視化できます。
+    32列の縦線と、グラフィックモードでは 16 ライン単位の横線が表示されます。
+    <mark>⊞ アトリビュート選択</mark> ツールでキャラクタ/区画をクリックすると、右パネルにアトリビュートのビット情報が表示されます。
+  </p>
+</section>
+
+<!-- 7. エクスポート -->
+<section id="ja-export">
+  <div class="sec-head"><span class="sec-num">07</span><h2>エクスポート形式</h2></div>
+
+  <div class="sub-head">.p6g 保存（編集状態の完全保存）</div>
+  <p>
+    v2 の <mark>.p6g</mark> ファイルは <code>version: 2</code> を含みます。v1系の <mark>.p6g (version: 1)</mark> とは互換性がありません。
+    attr[] + data[] + mode + css をすべて保持します。
+  </p>
+
+  <div class="sub-head">ASM 出力（実機VRAM形式）</div>
+  <p>実機VRAMに書き込み可能な形式で出力します。</p>
+  <pre><span class="comment">; PC-6001 VRAM Data — SCREEN 3</span>
+<span class="comment">; ATTR: 512 bytes (先頭512B) + DATA: 6144 bytes</span>
+<span class="comment">;</span>
+<span class="comment">; ── ATTRIBUTE (512 bytes) ──</span>
+<span class="label">VRAM_ATTR:</span>
+<span class="directive">    DB</span>  <span class="value">08CH, 08CH, 08CH, ...</span>  <span class="comment">; row=0 col=0-15</span>
+<span class="comment">    ...</span>
+<span class="comment">; ── DATA (6144 bytes) ──</span>
+<span class="comment">; SCREEN 3 128×192 2bit/dot MSB=左</span>
+<span class="label">VRAM_DATA:</span>
+<span class="directive">    DB</span>  <span class="value">000H, 000H, ...</span>  <span class="comment">; Y=0</span></pre>
+
+  <div class="sub-head">PNG エクスポート</div>
+  <p>
+    実寸（SCR1/2/3: 128px基準、SCR4: 256×192px）の PNG を生成します。
+    <em class="hl">PNG は表示画像の書き出しです。編集状態の保存には .p6g を使用してください。</em>
+  </p>
+</section>
+
+<!-- 8. キーボード -->
+<section id="ja-keyboard">
+  <div class="sec-head"><span class="sec-num">08</span><h2>キーボードショートカット</h2></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>キー</th><th>機能</th></tr></thead>
+      <tbody>
+        <tr><td><kbd>P</kbd></td><td>ペン</td></tr>
+        <tr><td><kbd>E</kbd></td><td>消しゴム</td></tr>
+        <tr><td><kbd>F</kbd></td><td>塗りつぶし</td></tr>
+        <tr><td><kbd>L</kbd></td><td>直線</td></tr>
+        <tr><td><kbd>R</kbd></td><td>矩形（枠）</td></tr>
+        <tr><td><kbd>Shift+R</kbd></td><td>矩形（塗り）</td></tr>
+        <tr><td><kbd>I</kbd></td><td>スポイト</td></tr>
+        <tr><td><kbd>C</kbd></td><td>アトリビュート選択</td></tr>
+        <tr><td><kbd>Ctrl+Z</kbd></td><td>Undo（50段）</td></tr>
+        <tr><td><kbd>Ctrl+Y</kbd></td><td>Redo</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 9. 注意事項 -->
+<section id="ja-notes">
+  <div class="sec-head"><span class="sec-num">09</span><h2>注意事項・制限</h2></div>
+  <ul class="doc-list">
+    <li>v2.0 は実機準拠の土台版です。SCREEN 1 / 2 のキャラクタ・セミグラフィック編集は簡易表示のみです。</li>
+    <li>画像読み込みは SCREEN 3 / 4 のみ対応。SCREEN 1 / 2 への変換は v2.1 以降で対応予定。</li>
+    <li>PNG 保存は表示画像のエクスポートです。編集状態の保存には .p6g 形式を使用してください。</li>
+    <li>v1系の .p6g ファイル（version: 1）は読み込めません。v2系は version: 2 形式を使用します。</li>
+    <li>ファイルの出力先はブラウザのセキュリティ制約により選択できません。ブラウザの既定ダウンロードフォルダに保存されます。</li>
+    <li>SCR2 / SCR3 / SCR4 を含む全機能のデバッグ・検証は継続中です。</li>
+  </ul>
+</section>
+
+<!-- 10. バージョン履歴 -->
+<section id="ja-changelog">
+  <div class="sec-head"><span class="sec-num">10</span><h2>バージョン履歴</h2></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>バージョン</th><th>日付</th><th>変更内容</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>v2.0</td>
+          <td>2026-04-01</td>
+          <td>
+            <strong>実機VRAM仕様準拠 初版</strong><br>
+            v1系から独立した別HTMLとして新規作成。
+            実機 SCREEN 1〜4、アトリビュート512B+データ構造、CSS色セット、
+            2bit/dot (SCR3) / 1bit/dot (SCR4) のデータ構造を実装。
+            ASM出力を実機VRAM形式に再設計。
+            .p6g 形式は version:2 として v1系と分離。
+            SCREEN 3 / 4 の描画ツールフル対応。SCREEN 1 / 2 は簡易表示のみ（v2.1以降で対応予定）。
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- LANGUAGE DIVIDER -->
+<div class="lang-divider">
+  <div class="lang-divider-line"></div>
+  <div class="lang-divider-label">ENGLISH</div>
+  <div class="lang-divider-line"></div>
+</div>
+
+<!-- EN TOC -->
+<div class="toc" id="en-top">
+  <div class="toc-title">◆ Table of Contents</div>
+  <ol>
+    <li><a href="#en-overview">Overview</a></li>
+    <li><a href="#en-screens">Screen Mode Specifications (Hardware)</a></li>
+    <li><a href="#en-vram">VRAM Structure</a></li>
+    <li><a href="#en-palette">Palette &amp; Color Sets</a></li>
+    <li><a href="#en-tools">Drawing Tools</a></li>
+    <li><a href="#en-usage">How to Use</a></li>
+    <li><a href="#en-export">Export Formats</a></li>
+    <li><a href="#en-keyboard">Keyboard Shortcuts</a></li>
+    <li><a href="#en-notes">Notes &amp; Limitations</a></li>
+    <li><a href="#en-changelog">Version History</a></li>
+  </ol>
+</div>
+
+<section id="en-overview">
+  <div class="sec-head"><span class="sec-num">01</span><h2>Overview</h2></div>
+  <p>
+    <strong>PC-6001 GFX Editor v2</strong> is a browser-based graphics editor compliant with the actual PC-6001 hardware VRAM specification.
+    It is based on the real SCREEN 1–4 modes, attribute structure, and color set definitions of the PC-6001.
+  </p>
+  <div class="card info">
+    <div class="card-head">ℹ SPEC REFERENCE</div>
+    <p>Hardware specifications referenced from <a href="https://000.la.coocan.jp/p6/tech.html#vram" style="color:var(--cyan)">https://000.la.coocan.jp/p6/tech.html#vram</a></p>
+  </div>
+  <div class="card warn">
+    <div class="card-head">⚠ v2.0 IS A FOUNDATION RELEASE</div>
+    <p>v2.0 prioritizes correct hardware modeling. Full SCREEN 1/2 character editing, advanced image conversion, and quality improvements are planned for v2.1+.</p>
+  </div>
+</section>
+
+<section id="en-screens">
+  <div class="sec-head"><span class="sec-num">02</span><h2>Screen Mode Specifications (Hardware)</h2></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Mode</th><th>BASIC SCREEN</th><th>Resolution</th><th>Colors</th><th>Data Structure</th></tr></thead>
+      <tbody>
+        <tr><td>SCREEN 1</td><td>SCREEN 1</td><td>32×16 chars</td><td>CSS=0: white/inv<br>CSS=1: green/inv</td><td>ATTR 512B + DATA 512B</td></tr>
+        <tr><td>SCREEN 2</td><td>SCREEN 2</td><td>64×48 semi-gfx</td><td>CSS=0: black+green/yellow/blue/red<br>CSS=1: black+white/cyan/magenta/orange</td><td>ATTR 512B + DATA 512B</td></tr>
+        <tr><td>SCREEN 3</td><td>SCREEN 3</td><td>128×192 4-color</td><td>CSS=0: green/yellow/blue/red<br>CSS=1: white/cyan/magenta/orange</td><td>ATTR 512B + DATA 6144B<br>2bit/dot, 32B/line</td></tr>
+        <tr><td>SCREEN 4</td><td>SCREEN 4</td><td>256×192 2-color</td><td>CSS=0: black/green<br>CSS=1: black/white</td><td>ATTR 512B + DATA 6144B<br>1bit/dot, 32B/line</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="en-vram">
+  <div class="sec-head"><span class="sec-num">03</span><h2>VRAM Structure</h2></div>
+  <p>The PC-6001 VRAM begins with <em class="hl">512 bytes of attribute data</em>, followed by the display data area.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>bit</th><th>Name</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>7</td><td>#A/G</td><td>0=text mode, 1=graphics mode</td></tr>
+        <tr><td>6</td><td>#A/S</td><td>text: 0=character, 1=semi-graphic</td></tr>
+        <tr><td>5</td><td>#INT/EXT</td><td>char: 0=internal font, 1=external font (CGROM)</td></tr>
+        <tr><td>4-2</td><td>GM0,GM1,GM2</td><td>graphics resolution select</td></tr>
+        <tr><td>1</td><td>CSS</td><td>color set select (0 or 1)</td></tr>
+        <tr><td>0</td><td>INV</td><td>character inversion</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>In graphics modes, attributes control 32 columns × 16-line bands. Horizontal (column) splitting is possible but vertical splitting is only in 16-line units.</p>
+</section>
+
+<section id="en-palette">
+  <div class="sec-head"><span class="sec-num">04</span><h2>Palette &amp; Color Sets</h2></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Mode</th><th>CSS=0</th><th>CSS=1</th></tr></thead>
+      <tbody>
+        <tr><td>SCREEN 1</td><td>White / White-inverted</td><td>Green / Green-inverted</td></tr>
+        <tr><td>SCREEN 2</td><td>Black, Green, Yellow, Blue, Red</td><td>Black, White, Cyan, Magenta, Orange</td></tr>
+        <tr><td>SCREEN 3</td><td>Green, Yellow, Blue, Red</td><td>White, Cyan, Magenta, Orange</td></tr>
+        <tr><td>SCREEN 4</td><td>Black, Green</td><td>Black, White</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="en-tools">
+  <div class="sec-head"><span class="sec-num">05</span><h2>Drawing Tools</h2></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Tool</th><th>Key</th><th>Description</th><th>Modes</th></tr></thead>
+      <tbody>
+        <tr><td>✏️ Pen</td><td><kbd>P</kbd></td><td>Freehand per-dot drawing</td><td>SCR3/4</td></tr>
+        <tr><td>🧹 Eraser</td><td><kbd>E</kbd></td><td>Paint with BG color</td><td>SCR3/4</td></tr>
+        <tr><td>🪣 Fill</td><td><kbd>F</kbd></td><td>Flood fill</td><td>SCR3/4</td></tr>
+        <tr><td>╱ Line</td><td><kbd>L</kbd></td><td>Bresenham line</td><td>SCR3/4</td></tr>
+        <tr><td>□ Rectangle</td><td><kbd>R</kbd></td><td>Outline rectangle</td><td>SCR3/4</td></tr>
+        <tr><td>■ Filled Rect</td><td><kbd>Shift+R</kbd></td><td>Filled rectangle</td><td>SCR3/4</td></tr>
+        <tr><td>💧 Eyedropper</td><td><kbd>I</kbd></td><td>Pick color</td><td>SCR3/4</td></tr>
+        <tr><td>⊞ Attr Select</td><td><kbd>C</kbd></td><td>Show attribute info, SCR1/2 basic edit</td><td>All</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="en-usage">
+  <div class="sec-head"><span class="sec-num">06</span><h2>How to Use</h2></div>
+  <ol class="doc-list">
+    <li>Select SCR3 or SCR4 from the tab bar</li>
+    <li>Choose a color set (CSS=0 / CSS=1) in the right panel</li>
+    <li>Set FG/BG colors in the palette (left-click=FG, right-click=BG)</li>
+    <li>Draw with the tools</li>
+    <li>Save with <mark>.p6g 保存</mark>, export PNG, or download assembler output</li>
+  </ol>
+</section>
+
+<section id="en-export">
+  <div class="sec-head"><span class="sec-num">07</span><h2>Export Formats</h2></div>
+  <p><strong>.p6g</strong> saves complete edit state (version:2, incompatible with v1 files).</p>
+  <p><strong>ASM output</strong> produces hardware VRAM-compatible format: ATTR block (512B) followed by DATA block.</p>
+  <p><strong>PNG</strong> exports the display image only. Use .p6g for session save/restore.</p>
+  <p>All exported files are saved to your browser's default download folder (browser security restriction).</p>
+</section>
+
+<section id="en-keyboard">
+  <div class="sec-head"><span class="sec-num">08</span><h2>Keyboard Shortcuts</h2></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Key</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td><kbd>P</kbd></td><td>Pen</td></tr>
+        <tr><td><kbd>E</kbd></td><td>Eraser</td></tr>
+        <tr><td><kbd>F</kbd></td><td>Flood fill</td></tr>
+        <tr><td><kbd>L</kbd></td><td>Line</td></tr>
+        <tr><td><kbd>R</kbd></td><td>Rectangle (outline)</td></tr>
+        <tr><td><kbd>Shift+R</kbd></td><td>Rectangle (filled)</td></tr>
+        <tr><td><kbd>I</kbd></td><td>Eyedropper</td></tr>
+        <tr><td><kbd>C</kbd></td><td>Attribute select</td></tr>
+        <tr><td><kbd>Ctrl+Z</kbd></td><td>Undo (50 steps)</td></tr>
+        <tr><td><kbd>Ctrl+Y</kbd></td><td>Redo</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="en-notes">
+  <div class="sec-head"><span class="sec-num">09</span><h2>Notes &amp; Limitations</h2></div>
+  <ul class="doc-list">
+    <li>v2.0 is a foundation release. Full SCREEN 1/2 character/semi-graphic editing is planned for v2.1+.</li>
+    <li>Image import is supported for SCREEN 3/4 only.</li>
+    <li>PNG export is a display image export, not an edit state save. Use .p6g for that.</li>
+    <li>v1 .p6g files (version:1) cannot be loaded in v2. v2 uses version:2 format.</li>
+    <li>Files are saved to the browser's default download folder (cannot be changed due to browser security).</li>
+    <li>Full verification of all modes is ongoing.</li>
+  </ul>
+</section>
+
+<section id="en-changelog">
+  <div class="sec-head"><span class="sec-num">10</span><h2>Version History</h2></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Version</th><th>Date</th><th>Changes</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>v2.0</td>
+          <td>2026-04-01</td>
+          <td>
+            <strong>Initial hardware-spec compliant release</strong><br>
+            New standalone HTML, independent from v1 series.
+            Implements real SCREEN 1–4 modes, 512B attribute + data VRAM structure,
+            CSS color sets, 2bit/dot (SCR3) and 1bit/dot (SCR4) data layout.
+            ASM output redesigned to hardware VRAM format.
+            .p6g format uses version:2, separate from v1.
+            Full drawing tool support for SCREEN 3/4. SCREEN 1/2 display only (full edit in v2.1+).
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  PC-6001 GFX EDITOR <span>v2.0</span> — Hardware Spec Compliant Edition<br>
+  NEC PC-6001 is a trademark of NEC Corporation. This tool is an independent fan project.<br>
+  VRAM spec reference: <span>https://000.la.coocan.jp/p6/tech.html#vram</span>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PC-6001 GFX Editor v2</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700&display=swap');
+
+:root {
+  --bg: #0e0b07;
+  --panel: #161109;
+  --border: #2e2416;
+  --border2: #3e3020;
+  --amber: #ffb830;
+  --amber-dim: #996e1a;
+  --amber-bright: #ffd070;
+  --red: #ff4d2e;
+  --cyan: #30d4c8;
+  --text: #c8a870;
+  --text-dim: #5a4820;
+  --text-mid: #8a6830;
+  --btn: #1e1608;
+  --btn-hover: #2a2010;
+  --active-bg: #2a1e00;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+#header {
+  background: #0a0800;
+  border-bottom: 1px solid var(--border);
+  padding: 5px 12px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+#header h1 {
+  font-size: 13px;
+  color: var(--amber);
+  letter-spacing: 2px;
+  white-space: nowrap;
+  text-shadow: 0 0 8px rgba(255,184,48,0.4);
+}
+#header h1 em { color: var(--red); font-style: normal; }
+.hbar { flex: 1; }
+.ver-badge {
+  font-size: 10px;
+  color: var(--amber-dim);
+  letter-spacing: 1px;
+  border: 1px solid var(--amber-dim);
+  padding: 1px 7px;
+}
+.spec-badge {
+  font-size: 10px;
+  color: var(--cyan);
+  letter-spacing: 1px;
+  border: 1px solid var(--cyan);
+  padding: 1px 7px;
+  opacity: 0.7;
+}
+
+/* ── Mode tabs ── */
+.mode-tabs { display: flex; gap: 2px; }
+.mode-tab {
+  padding: 3px 8px;
+  background: var(--btn);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 10px;
+  transition: all 0.15s;
+  line-height: 1.4;
+  text-align: center;
+}
+.mode-tab:hover { background: var(--btn-hover); color: var(--text); }
+.mode-tab.active { background: var(--active-bg); border-color: var(--amber); color: var(--amber); }
+
+/* ── Mode info bar ── */
+#mode-info {
+  padding: 3px 10px;
+  font-size: 10px;
+  color: var(--text-mid);
+  background: #0c0900;
+  border-bottom: 1px solid var(--border);
+  letter-spacing: 0.5px;
+}
+
+/* ── Main ── */
+#main { display: flex; flex: 1; overflow: hidden; }
+
+/* ── Toolbox ── */
+#toolbox {
+  width: 46px;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 0;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.tool-btn {
+  width: 34px; height: 34px;
+  background: var(--btn);
+  border: 1px solid var(--border);
+  color: var(--text-mid);
+  cursor: pointer;
+  font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.1s;
+}
+.tool-btn:hover { background: var(--btn-hover); border-color: var(--border2); color: var(--text); }
+.tool-btn.active { background: var(--active-bg); border-color: var(--amber); color: var(--amber); }
+.tool-sep { width: 26px; height: 1px; background: var(--border); margin: 3px 0; }
+
+/* ── Canvas area ── */
+#canvas-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #080600;
+  overflow: auto;
+}
+#canvas-wrap { position: relative; image-rendering: pixelated; }
+#main-canvas { display: block; image-rendering: pixelated; cursor: crosshair; }
+#grid-canvas {
+  position: absolute; top: 0; left: 0;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+
+/* ── Right panel ── */
+#right-panel {
+  width: 188px;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+.rpanel-section {
+  border-bottom: 1px solid var(--border);
+  padding: 7px 8px;
+}
+.rpanel-label {
+  font-size: 10px;
+  color: var(--amber-dim);
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+}
+
+/* Color set selector */
+#css-ctrl {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+.css-btn {
+  flex: 1;
+  padding: 3px 4px;
+  background: var(--btn);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 10px;
+  text-align: center;
+  transition: all 0.1s;
+}
+.css-btn.active { background: var(--active-bg); border-color: var(--amber); color: var(--amber); }
+
+/* Palette */
+#palette-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+}
+.pal-cell {
+  aspect-ratio: 1;
+  border: 1px solid #333;
+  cursor: pointer;
+  transition: transform 0.1s;
+  position: relative;
+}
+.pal-cell:hover { transform: scale(1.12); z-index: 1; }
+.pal-cell.fg { outline: 2px solid var(--amber); outline-offset: 1px; }
+.pal-cell.bg { outline: 2px solid var(--cyan); outline-offset: 1px; }
+.pal-cell.unavail { opacity: 0.18; cursor: not-allowed; }
+
+/* Color indicator */
+#color-indicator {
+  display: flex; gap: 6px; margin-top: 5px; align-items: center;
+}
+.ci-box { width: 20px; height: 20px; border: 1px solid #555; }
+.ci-label { font-size: 10px; color: var(--text-dim); }
+
+/* Attr display */
+#attr-info { font-size: 10px; color: var(--text-mid); line-height: 1.7; }
+
+/* Char edit */
+#char-grid-wrap { display: none; }
+#char-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 1px;
+  background: #333;
+  border: 1px solid #333;
+}
+.cg-cell {
+  aspect-ratio: 1;
+  background: #000;
+  cursor: pointer;
+  transition: background 0.05s;
+}
+.cg-cell.on { background: var(--amber); }
+
+/* Zoom */
+#zoom-ctrl { display: flex; align-items: center; gap: 5px; }
+.zoom-btn {
+  width: 20px; height: 20px;
+  background: var(--btn);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+}
+.zoom-btn:hover { background: var(--btn-hover); }
+#zoom-val { font-size: 11px; min-width: 28px; text-align: center; }
+
+/* Position */
+#coord-info { font-size: 10px; color: var(--text-dim); line-height: 1.7; }
+
+/* Buttons */
+.action-btn {
+  width: 100%;
+  padding: 4px 7px;
+  background: var(--btn);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  text-align: left;
+  transition: all 0.1s;
+  margin-bottom: 3px;
+}
+.action-btn:hover { background: var(--btn-hover); border-color: var(--border2); }
+.action-btn.primary { border-color: var(--amber-dim); color: var(--amber); }
+.action-btn.primary:hover { background: var(--active-bg); }
+
+/* Status bar */
+#statusbar {
+  height: 20px;
+  background: #080600;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 10px;
+  gap: 14px;
+  font-size: 10px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+#statusbar span { color: var(--text); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <h1>PC-<em>6001</em> GFX EDITOR</h1>
+  <div class="mode-tabs">
+    <button class="mode-tab active" data-mode="1">SCR1<br>32×16<br>キャラ</button>
+    <button class="mode-tab" data-mode="2">SCR2<br>64×48<br>セミGFX</button>
+    <button class="mode-tab" data-mode="3">SCR3<br>128×192<br>4色GFX</button>
+    <button class="mode-tab" data-mode="4">SCR4<br>256×192<br>2色GFX</button>
+  </div>
+  <div class="hbar"></div>
+  <span class="spec-badge">HARDWARE SPEC</span>
+  <span class="ver-badge">v2.0</span>
+</div>
+
+<div id="mode-info">—</div>
+
+<div id="main">
+  <div id="toolbox">
+    <button class="tool-btn active" data-tool="pen" title="ペン (P)">✏️</button>
+    <button class="tool-btn" data-tool="eraser" title="消しゴム (E)">🧹</button>
+    <button class="tool-btn" data-tool="fill" title="塗りつぶし (F)">🪣</button>
+    <button class="tool-btn" data-tool="line" title="直線 (L)">╱</button>
+    <button class="tool-btn" data-tool="rect" title="矩形枠 (R)">□</button>
+    <button class="tool-btn" data-tool="rectfill" title="矩形塗り (Shift+R)">■</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn" data-tool="eyedropper" title="スポイト (I)">💧</button>
+    <button class="tool-btn" data-tool="charsel" title="アトリビュート選択 (C)">⊞</button>
+  </div>
+
+  <div id="canvas-area">
+    <div id="canvas-wrap">
+      <canvas id="main-canvas"></canvas>
+      <canvas id="grid-canvas"></canvas>
+    </div>
+  </div>
+
+  <div id="right-panel">
+
+    <!-- Screen info -->
+    <div class="rpanel-section">
+      <div class="rpanel-label">SCREEN INFO</div>
+      <div id="screen-info" style="font-size:10px;color:#888;line-height:1.7;"></div>
+    </div>
+
+    <!-- CSS selector (SCR3/4) -->
+    <div class="rpanel-section" id="css-section" style="display:none">
+      <div class="rpanel-label">COLOR SET (CSS)</div>
+      <div id="css-ctrl">
+        <button class="css-btn active" data-css="0">CSS=0<br><small>緑/黄/青/赤</small></button>
+        <button class="css-btn" data-css="1">CSS=1<br><small>白/ｼｱﾝ/ﾏｾﾞ/橙</small></button>
+      </div>
+    </div>
+
+    <!-- Palette -->
+    <div class="rpanel-section">
+      <div class="rpanel-label">PALETTE (左:FG / 右:BG)</div>
+      <div id="palette-grid"></div>
+      <div id="color-indicator">
+        <div><div class="ci-label">FG</div><div class="ci-box" id="ci-fg"></div></div>
+        <div><div class="ci-label">BG</div><div class="ci-box" id="ci-bg"></div></div>
+      </div>
+    </div>
+
+    <!-- Attribute info -->
+    <div class="rpanel-section">
+      <div class="rpanel-label">ATTRIBUTE</div>
+      <div id="attr-info">—</div>
+    </div>
+
+    <!-- Char/semi editor -->
+    <div class="rpanel-section" id="char-grid-wrap">
+      <div class="rpanel-label">CHAR EDIT (8×8)</div>
+      <div id="char-grid"></div>
+      <div style="margin-top:4px;font-size:10px;color:var(--text-dim)" id="char-pos-label">—</div>
+    </div>
+
+    <!-- Zoom -->
+    <div class="rpanel-section">
+      <div class="rpanel-label">ZOOM</div>
+      <div id="zoom-ctrl">
+        <button class="zoom-btn" id="zoom-out">−</button>
+        <div id="zoom-val">×3</div>
+        <button class="zoom-btn" id="zoom-in">＋</button>
+      </div>
+    </div>
+
+    <!-- Position -->
+    <div class="rpanel-section">
+      <div class="rpanel-label">POSITION</div>
+      <div id="coord-info">X:— Y:—<br>ATTR:—<br>VRAM:—</div>
+    </div>
+
+    <!-- Actions -->
+    <div class="rpanel-section">
+      <div class="rpanel-label">ACTIONS</div>
+      <button class="action-btn" id="btn-clear">CLR — 全消去</button>
+      <button class="action-btn" id="btn-undo">↩ Undo (Ctrl+Z)</button>
+      <button class="action-btn" id="btn-redo">↪ Redo (Ctrl+Y)</button>
+    </div>
+
+    <!-- Export -->
+    <div class="rpanel-section">
+      <div class="rpanel-label">EXPORT</div>
+      <button class="action-btn primary" id="btn-png">PNG ダウンロード</button>
+      <button class="action-btn primary" id="btn-asm">ASM (実機VRAM形式)</button>
+      <div style="height:3px"></div>
+      <div class="rpanel-label">SAVE / LOAD</div>
+      <button class="action-btn primary" id="btn-p6g-save">.p6g 保存（編集状態）</button>
+      <button class="action-btn" id="btn-p6g-load">.p6g 読込</button>
+      <input type="file" id="p6g-input" accept=".p6g" style="display:none">
+      <div style="height:3px"></div>
+      <div class="rpanel-label">IMAGE IMPORT</div>
+      <button class="action-btn" id="btn-load-img">画像読み込み… (PNG/JPEG等)</button>
+      <input type="file" id="img-input" accept="image/*" style="display:none">
+    </div>
+
+    <!-- View -->
+    <div class="rpanel-section">
+      <div class="rpanel-label">VIEW</div>
+      <button class="action-btn" id="btn-grid">グリッド: ON</button>
+      <button class="action-btn" id="btn-attr-grid">属性グリッド: ON</button>
+    </div>
+
+  </div>
+</div>
+
+<div id="statusbar">
+  モード: <span id="sb-mode">SCREEN 1</span>
+  ツール: <span id="sb-tool">PEN</span>
+  Undo: <span id="sb-undo">0</span>
+  <div style="flex:1"></div>
+  左クリック=FG / 右クリック=BG / Ctrl+Z=Undo / Ctrl+Y=Redo
+</div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════
+// 実機仕様定数
+// 出典: https://000.la.coocan.jp/p6/tech.html#vram
+// ═══════════════════════════════════════════════════════
+
+// アトリビュート値 (実機VRAM先頭512バイトに相当)
+const ATTR = {
+  SCR1: 0x24, // 外部フォント キャラクタモード (CSS=0, INV=0)
+  SCR2: 0x60, // 64x48セミグラフィック CSS=0
+  SCR3_CSS0: 0x8C, // 128x192 カラーグラフィック CSS=0 (緑/黄/青/赤)
+  SCR3_CSS1: 0x8E, // 128x192 カラーグラフィック CSS=1 (白/シアン/マゼンタ/橙)
+  SCR4_CSS0: 0xDC, // 256x192 モノクログラフィック CSS=0 (黒/緑)
+  SCR4_CSS1: 0xDE, // 256x192 モノクログラフィック CSS=1 (黒/白)
+};
+
+// 実機パレット — SCREENモード別・CSSビット別
+// SCREEN 1: キャラクタ色 (mkII以降準拠)
+const PAL_SCR1 = [
+  { name:'白',   rgb:'#ffffff' },  // CSS=0,INV=0
+  { name:'白反転', rgb:'#000000' }, // CSS=0,INV=1
+  { name:'緑',   rgb:'#00cc00' },  // CSS=1,INV=0
+  { name:'緑反転', rgb:'#003300' }, // CSS=1,INV=1
+];
+
+// SCREEN 2: セミグラフィック 8色+黒
+const PAL_SCR2_CSS0 = [
+  { name:'黒',   rgb:'#000000' },
+  { name:'緑',   rgb:'#00cc00' },
+  { name:'黄',   rgb:'#cccc00' },
+  { name:'青',   rgb:'#0000cc' },
+  { name:'赤',   rgb:'#cc0000' },
+];
+const PAL_SCR2_CSS1 = [
+  { name:'黒',      rgb:'#000000' },
+  { name:'白',      rgb:'#cccccc' },
+  { name:'シアン',  rgb:'#00cccc' },
+  { name:'マゼンタ',rgb:'#cc00cc' },
+  { name:'橙',      rgb:'#cc6600' },
+];
+
+// SCREEN 3: 128x192 4色グラフィック
+const PAL_SCR3_CSS0 = [
+  { name:'緑', rgb:'#00cc00' },
+  { name:'黄', rgb:'#cccc00' },
+  { name:'青', rgb:'#0000cc' },
+  { name:'赤', rgb:'#cc0000' },
+];
+const PAL_SCR3_CSS1 = [
+  { name:'白',      rgb:'#cccccc' },
+  { name:'シアン',  rgb:'#00cccc' },
+  { name:'マゼンタ',rgb:'#cc00cc' },
+  { name:'橙',      rgb:'#cc6600' },
+];
+
+// SCREEN 4: 256x192 2色グラフィック
+const PAL_SCR4_CSS0 = [
+  { name:'黒', rgb:'#000000' },
+  { name:'緑', rgb:'#00cc00' },
+];
+const PAL_SCR4_CSS1 = [
+  { name:'黒', rgb:'#000000' },
+  { name:'白', rgb:'#cccccc' },
+];
+
+// 実機スクリーンモード定義
+// VRAM: 先頭512B=アトリビュート、以降=データ
+const MODES = {
+  1: {
+    name: 'SCREEN 1', basicScreen: 1,
+    cols: 32, rows: 16,       // キャラクタ単位
+    dotW: 256, dotH: 192,    // 表示ドット (実機の実表示域)
+    charW: 8, charH: 12,     // 1キャラ=8×12ドット相当 (表示)
+    attrSize: 512,           // アトリビュート 32×16=512B
+    dataSize: 512,           // データ 32×16=512B (キャラコード)
+    bitsPerDot: 8,           // キャラコード1B/文字
+    pa: 1,                   // ピクセルアスペクト比 (1:1 for char display)
+    cssSupport: false,
+    desc: '32×16 キャラクタ / アトリビュート512B+データ512B',
+    getPalette: (css) => PAL_SCR1,
+  },
+  2: {
+    name: 'SCREEN 2', basicScreen: 2,
+    cols: 32, rows: 16,
+    dotW: 64, dotH: 48,      // セミグラフィック解像度
+    charW: 2, charH: 3,      // 1キャラ=2×3ドット
+    attrSize: 512,
+    dataSize: 512,
+    bitsPerDot: 8,
+    pa: 2,
+    cssSupport: true,
+    desc: '64×48 セミグラフィック / 2×3ドット/文字 / 8色+黒',
+    getPalette: (css) => css === 0 ? PAL_SCR2_CSS0 : PAL_SCR2_CSS1,
+  },
+  3: {
+    name: 'SCREEN 3', basicScreen: 3,
+    cols: 32, rows: 192,     // アトリビュート列×ライン
+    dotW: 128, dotH: 192,
+    charW: 4, charH: 1,      // 2bit/dot, 4dot/byte
+    attrSize: 512,           // 32列×16ライン単位=512B
+    dataSize: 6144,          // 32B×192ライン
+    bitsPerDot: 2,
+    pa: 2,                   // 横長ドット
+    cssSupport: true,
+    desc: '128×192 4色グラフィック / 2bit/dot / 32B/line',
+    getPalette: (css) => css === 0 ? PAL_SCR3_CSS0 : PAL_SCR3_CSS1,
+  },
+  4: {
+    name: 'SCREEN 4', basicScreen: 4,
+    cols: 32, rows: 192,
+    dotW: 256, dotH: 192,
+    charW: 8, charH: 1,      // 1bit/dot, 8dot/byte
+    attrSize: 512,
+    dataSize: 6144,          // 32B×192ライン
+    bitsPerDot: 1,
+    pa: 1,
+    cssSupport: true,
+    desc: '256×192 2色グラフィック / 1bit/dot / 32B/line',
+    getPalette: (css) => css === 0 ? PAL_SCR4_CSS0 : PAL_SCR4_CSS1,
+  },
+};
+
+// ═══════════════════════════════════════════════════════
+// 状態
+// ═══════════════════════════════════════════════════════
+let mode = 1;
+let css = 0;   // CSSビット (0 or 1)
+let zoom = 3;
+let tool = 'pen';
+let fgIdx = 1; // パレットインデックス
+let bgIdx = 0;
+let showGrid = true;
+let showAttrGrid = true;
+
+// VRAM内部表現
+// attr[]: Uint8Array[512]  アトリビュート (各スクリーンで意味は変わる)
+// data[]: Uint8Array       データ領域
+let attr = null;
+let data = null;
+
+let undoStack = [];
+let redoStack = [];
+const MAX_UNDO = 50;
+
+let isDrawing = false;
+let startX = -1, startY = -1;
+let selectedCell = null; // {col, row}
+
+// ═══════════════════════════════════════════════════════
+// DOM
+// ═══════════════════════════════════════════════════════
+const mainCanvas = document.getElementById('main-canvas');
+const gridCanvas = document.getElementById('grid-canvas');
+const ctx = mainCanvas.getContext('2d');
+const gctx = gridCanvas.getContext('2d');
+
+// ═══════════════════════════════════════════════════════
+// 初期化
+// ═══════════════════════════════════════════════════════
+function initMode(m, keepUndo) {
+  mode = m;
+  css = 0;
+  const md = MODES[m];
+  attr = new Uint8Array(md.attrSize);
+  data = new Uint8Array(md.dataSize);
+
+  // アトリビュートのデフォルト値を実機仕様で初期化
+  fillDefaultAttr();
+
+  if (!keepUndo) { undoStack = []; redoStack = []; }
+  fgIdx = md.getPalette(css).length > 1 ? 1 : 0;
+  bgIdx = 0;
+  selectedCell = null;
+
+  updateModeUI();
+  resizeCanvases();
+  render();
+  document.getElementById('sb-undo').textContent = undoStack.length;
+}
+
+function fillDefaultAttr() {
+  const md = MODES[mode];
+  let val;
+  switch (mode) {
+    case 1: val = ATTR.SCR1; break;
+    case 2: val = ATTR.SCR2; break;
+    case 3: val = css === 0 ? ATTR.SCR3_CSS0 : ATTR.SCR3_CSS1; break;
+    case 4: val = css === 0 ? ATTR.SCR4_CSS0 : ATTR.SCR4_CSS1; break;
+  }
+  attr.fill(val);
+}
+
+function updateModeUI() {
+  const md = MODES[mode];
+  document.getElementById('mode-info').textContent =
+    `${md.name}  —  ${md.desc}  —  ATTR:${md.attrSize}B + DATA:${md.dataSize}B`;
+  document.getElementById('sb-mode').textContent = md.name;
+
+  document.getElementById('screen-info').innerHTML =
+    `解像度: ${md.dotW}×${md.dotH}<br>` +
+    `キャラ: ${md.cols}×${md.rows}<br>` +
+    `ドット: ${md.bitsPerDot}bit/dot<br>` +
+    `ATTR: ${md.attrSize}B<br>` +
+    `DATA: ${md.dataSize}B`;
+
+  document.querySelectorAll('.mode-tab').forEach(t =>
+    t.classList.toggle('active', +t.dataset.mode === mode));
+
+  // CSS selector
+  const cssSection = document.getElementById('css-section');
+  cssSection.style.display = md.cssSupport ? 'block' : 'none';
+  document.querySelectorAll('.css-btn').forEach(b =>
+    b.classList.toggle('active', +b.dataset.css === css));
+
+  // Char grid visibility: SCR1/2のみ
+  document.getElementById('char-grid-wrap').style.display =
+    (mode === 1 || mode === 2) ? 'block' : 'none';
+
+  buildPalette();
+  updateColorUI();
+}
+
+// ═══════════════════════════════════════════════════════
+// パレット UI
+// ═══════════════════════════════════════════════════════
+function buildPalette() {
+  const md = MODES[mode];
+  const pal = md.getPalette(css);
+  const grid = document.getElementById('palette-grid');
+  grid.innerHTML = '';
+  pal.forEach((c, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'pal-cell';
+    cell.style.background = c.rgb;
+    cell.title = `${i}: ${c.name} (${c.rgb})`;
+    if (i === fgIdx) cell.classList.add('fg');
+    if (i === bgIdx) cell.classList.add('bg');
+    cell.addEventListener('click', () => { fgIdx = i; updateColorUI(); });
+    cell.addEventListener('contextmenu', e => { e.preventDefault(); bgIdx = i; updateColorUI(); });
+    grid.appendChild(cell);
+  });
+}
+
+function updateColorUI() {
+  const pal = MODES[mode].getPalette(css);
+  document.querySelectorAll('.pal-cell').forEach((c, i) => {
+    c.classList.toggle('fg', i === fgIdx);
+    c.classList.toggle('bg', i === bgIdx);
+  });
+  const fgColor = pal[Math.min(fgIdx, pal.length-1)];
+  const bgColor = pal[Math.min(bgIdx, pal.length-1)];
+  document.getElementById('ci-fg').style.background = fgColor.rgb;
+  document.getElementById('ci-bg').style.background = bgColor.rgb;
+}
+
+// ═══════════════════════════════════════════════════════
+// レンダリング
+// ═══════════════════════════════════════════════════════
+function resizeCanvases() {
+  const md = MODES[mode];
+  const w = md.dotW * zoom * md.pa;
+  const h = md.dotH * zoom;
+  mainCanvas.width = w; mainCanvas.height = h;
+  gridCanvas.width = w; gridCanvas.height = h;
+  drawGrid();
+}
+
+function render(previewData) {
+  const md = MODES[mode];
+  const pal = md.getPalette(css);
+  const src = previewData || data;
+  ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+
+  if (mode === 1) renderSCR1(pal, src);
+  else if (mode === 2) renderSCR2(pal, src);
+  else if (mode === 3) renderSCR3(pal, src);
+  else if (mode === 4) renderSCR4(pal, src);
+}
+
+function renderSCR1(pal, src) {
+  // SCREEN 1: 32×16キャラ, 各キャラ=1バイトのキャラコード
+  // 表示: 8×12ドット相当として描画（簡易表示）
+  const md = MODES[mode];
+  const cw = md.dotW / md.cols; // 8
+  const ch = md.dotH / md.rows; // 12
+  for (let row = 0; row < md.rows; row++) {
+    for (let col = 0; col < md.cols; col++) {
+      const charCode = src[row * md.cols + col];
+      // アトリビュートからINV/CSS読み取り
+      const attrByte = attr[row * md.cols + col];
+      const inv = attrByte & 0x01;
+      const cssA = (attrByte >> 1) & 0x01;
+      // 簡易表示: キャラコードのビットパターンを上位ニブルで表示
+      const fgColor = inv ? pal[0].rgb : pal[cssA * 2].rgb;
+      const bgColor = inv ? pal[cssA * 2].rgb : pal[0].rgb;
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(col * cw * zoom, row * ch * zoom, cw * zoom, ch * zoom);
+      // キャラコードをテキストで表示（簡易）
+      if (charCode >= 0x20 && charCode < 0x80) {
+        ctx.fillStyle = fgColor;
+        ctx.font = `${Math.max(8, zoom * 6)}px monospace`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(
+          String.fromCharCode(charCode),
+          (col + 0.5) * cw * zoom,
+          (row + 0.5) * ch * zoom
+        );
+      }
+    }
+  }
+}
+
+function renderSCR2(pal, src) {
+  // SCREEN 2: 64×48セミグラフィック, 2×3ドット/文字
+  // データ: bit7-6=カラーコード, bit5-0=ドットパターン
+  const md = MODES[mode];
+  const cw = 2, ch = 3; // dots per char
+  const dotW = zoom * md.pa;
+  const dotH = zoom;
+  for (let row = 0; row < md.rows; row++) {
+    for (let col = 0; col < md.cols; col++) {
+      const byte = src[row * md.cols + col];
+      const colorCode = (byte >> 6) & 0x03;
+      const dots = byte & 0x3F;
+      const color = pal[colorCode + 1] || pal[0]; // +1 to skip black
+      // 2×3ドット
+      for (let dr = 0; dr < 3; dr++) {
+        for (let dc = 0; dc < 2; dc++) {
+          const bitIdx = (2 - dc) + dr * 2; // bit mapping
+          const on = (dots >> bitIdx) & 1;
+          ctx.fillStyle = on ? color.rgb : pal[0].rgb;
+          ctx.fillRect(
+            (col * 2 + dc) * dotW,
+            (row * 3 + dr) * dotH,
+            dotW, dotH
+          );
+        }
+      }
+    }
+  }
+}
+
+function renderSCR3(pal, src) {
+  // SCREEN 3: 128×192, 2bit/dot, MSB=左
+  const md = MODES[mode];
+  const dotW = zoom * md.pa;
+  const dotH = zoom;
+  for (let y = 0; y < md.dotH; y++) {
+    const lineBase = y * 32; // 32B/line
+    for (let bx = 0; bx < 32; bx++) {
+      const byte = src[lineBase + bx];
+      for (let d = 0; d < 4; d++) {
+        const colorIdx = (byte >> (6 - d * 2)) & 0x03;
+        ctx.fillStyle = pal[colorIdx].rgb;
+        const dotX = bx * 4 + d;
+        ctx.fillRect(dotX * dotW, y * dotH, dotW, dotH);
+      }
+    }
+  }
+}
+
+function renderSCR4(pal, src) {
+  // SCREEN 4: 256×192, 1bit/dot, MSB=左
+  const md = MODES[mode];
+  const dotW = zoom * md.pa;
+  const dotH = zoom;
+  for (let y = 0; y < md.dotH; y++) {
+    const lineBase = y * 32;
+    for (let bx = 0; bx < 32; bx++) {
+      const byte = src[lineBase + bx];
+      for (let d = 0; d < 8; d++) {
+        const bit = (byte >> (7 - d)) & 1;
+        ctx.fillStyle = pal[bit].rgb;
+        const dotX = bx * 8 + d;
+        ctx.fillRect(dotX * dotW, y * dotH, dotW, dotH);
+      }
+    }
+  }
+}
+
+function drawGrid() {
+  const md = MODES[mode];
+  gctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+  const dotW = zoom * md.pa;
+  const dotH = zoom;
+
+  if (showGrid && zoom >= 4 && mode >= 3) {
+    // ピクセルグリッド
+    gctx.strokeStyle = 'rgba(255,184,48,0.06)';
+    gctx.lineWidth = 0.5;
+    for (let x = 0; x <= md.dotW; x++) {
+      gctx.beginPath(); gctx.moveTo(x * dotW, 0); gctx.lineTo(x * dotW, md.dotH * dotH); gctx.stroke();
+    }
+    for (let y = 0; y <= md.dotH; y++) {
+      gctx.beginPath(); gctx.moveTo(0, y * dotH); gctx.lineTo(md.dotW * dotW, y * dotH); gctx.stroke();
+    }
+  }
+
+  if (showAttrGrid) {
+    // アトリビュートグリッド (32列)
+    gctx.strokeStyle = 'rgba(255,184,48,0.18)';
+    gctx.lineWidth = 1;
+    const attrColW = md.dotW / md.cols * dotW; // 各アトリビュート列幅
+    for (let c = 0; c <= md.cols; c++) {
+      const px = c * attrColW;
+      gctx.beginPath(); gctx.moveTo(px, 0); gctx.lineTo(px, md.dotH * dotH); gctx.stroke();
+    }
+    if (mode === 1 || mode === 2) {
+      // キャラクタモード: 行グリッドも
+      const rowH = md.dotH / md.rows * dotH;
+      for (let r = 0; r <= md.rows; r++) {
+        const py = r * rowH;
+        gctx.beginPath(); gctx.moveTo(0, py); gctx.lineTo(md.dotW * dotW, py); gctx.stroke();
+      }
+    } else {
+      // グラフィックモード: 16ラインごとにアトリビュート区切り
+      gctx.strokeStyle = 'rgba(48,212,200,0.15)';
+      for (let r = 0; r <= md.dotH; r += 16) {
+        const py = r * dotH;
+        gctx.beginPath(); gctx.moveTo(0, py); gctx.lineTo(md.dotW * dotW, py); gctx.stroke();
+      }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// 描画ツール
+// ═══════════════════════════════════════════════════════
+function getCanvasXY(e) {
+  const rect = mainCanvas.getBoundingClientRect();
+  const md = MODES[mode];
+  const dotW = zoom * md.pa;
+  const dotH = zoom;
+  let cx = (e.clientX || e.touches?.[0]?.clientX || 0) - rect.left;
+  let cy = (e.clientY || e.touches?.[0]?.clientY || 0) - rect.top;
+  const scaleX = mainCanvas.width / rect.width;
+  const scaleY = mainCanvas.height / rect.height;
+  return {
+    x: Math.max(0, Math.min(md.dotW - 1, Math.floor((cx * scaleX) / dotW))),
+    y: Math.max(0, Math.min(md.dotH - 1, Math.floor((cy * scaleY) / dotH))),
+  };
+}
+
+function getDrawColor(rightClick) {
+  return rightClick ? bgIdx : fgIdx;
+}
+
+function getDataIndex(x, y) {
+  const md = MODES[mode];
+  if (mode === 1 || mode === 2) {
+    const col = Math.floor(x / (md.dotW / md.cols));
+    const row = Math.floor(y / (md.dotH / md.rows));
+    return row * md.cols + col;
+  } else if (mode === 3) {
+    return y * 32 + Math.floor(x / 4);
+  } else { // mode 4
+    return y * 32 + Math.floor(x / 8);
+  }
+}
+
+function setDot(x, y, colorIdx, buf) {
+  const md = MODES[mode];
+  const target = buf || data;
+  if (mode === 3) {
+    const byteIdx = y * 32 + Math.floor(x / 4);
+    const bitPos = 6 - (x % 4) * 2;
+    target[byteIdx] = (target[byteIdx] & ~(0x03 << bitPos)) | ((colorIdx & 0x03) << bitPos);
+  } else if (mode === 4) {
+    const byteIdx = y * 32 + Math.floor(x / 8);
+    const bitPos = 7 - (x % 8);
+    if (colorIdx & 1) target[byteIdx] |= (1 << bitPos);
+    else target[byteIdx] &= ~(1 << bitPos);
+  } else if (mode === 1 || mode === 2) {
+    // キャラ・セミグラ: セル単位
+    const col = Math.floor(x / (md.dotW / md.cols));
+    const row = Math.floor(y / (md.dotH / md.rows));
+    const idx = row * md.cols + col;
+    if (mode === 2) {
+      const colorBits = (colorIdx & 0x03) << 6;
+      target[idx] = (target[idx] & 0x3F) | colorBits;
+    }
+  }
+}
+
+function getDot(x, y) {
+  const md = MODES[mode];
+  if (mode === 3) {
+    const byteIdx = y * 32 + Math.floor(x / 4);
+    const bitPos = 6 - (x % 4) * 2;
+    return (data[byteIdx] >> bitPos) & 0x03;
+  } else if (mode === 4) {
+    const byteIdx = y * 32 + Math.floor(x / 8);
+    const bitPos = 7 - (x % 8);
+    return (data[byteIdx] >> bitPos) & 1;
+  }
+  return 0;
+}
+
+function drawBresenham(x0, y0, x1, y1, color, buf) {
+  let dx = Math.abs(x1-x0), dy = Math.abs(y1-y0);
+  let sx = x0<x1?1:-1, sy = y0<y1?1:-1, err = dx-dy;
+  while (true) {
+    setDot(x0, y0, color, buf);
+    if (x0===x1 && y0===y1) break;
+    let e2 = 2*err;
+    if (e2 > -dy) { err -= dy; x0 += sx; }
+    if (e2 < dx)  { err += dx; y0 += sy; }
+  }
+}
+
+function drawRect(x0, y0, x1, y1, color, fill, buf) {
+  let lx=Math.min(x0,x1), rx=Math.max(x0,x1);
+  let ly=Math.min(y0,y1), ry=Math.max(y0,y1);
+  if (fill) {
+    for (let y=ly; y<=ry; y++) for (let x=lx; x<=rx; x++) setDot(x,y,color,buf);
+  } else {
+    for (let x=lx; x<=rx; x++) { setDot(x,ly,color,buf); setDot(x,ry,color,buf); }
+    for (let y=ly; y<=ry; y++) { setDot(lx,y,color,buf); setDot(rx,y,color,buf); }
+  }
+}
+
+function floodFill(x0, y0, fillColor) {
+  const md = MODES[mode];
+  const target = getDot(x0, y0);
+  if (target === fillColor) return;
+  const stack = [[x0, y0]];
+  while (stack.length) {
+    const [x, y] = stack.pop();
+    if (x<0||y<0||x>=md.dotW||y>=md.dotH) continue;
+    if (getDot(x, y) !== target) continue;
+    setDot(x, y, fillColor);
+    stack.push([x+1,y],[x-1,y],[x,y+1],[x,y-1]);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// イベント
+// ═══════════════════════════════════════════════════════
+mainCanvas.addEventListener('contextmenu', e => e.preventDefault());
+mainCanvas.addEventListener('mousedown', onDown);
+mainCanvas.addEventListener('mousemove', onMove);
+mainCanvas.addEventListener('mouseup', onUp);
+mainCanvas.addEventListener('mouseleave', onUp);
+mainCanvas.addEventListener('touchstart', e => { e.preventDefault(); onDown(e); }, {passive:false});
+mainCanvas.addEventListener('touchmove', e => { e.preventDefault(); onMove(e); }, {passive:false});
+mainCanvas.addEventListener('touchend', onUp, {passive:false});
+
+function onDown(e) {
+  const {x, y} = getCanvasXY(e);
+  const right = e.button === 2;
+  const color = getDrawColor(right);
+  const md = MODES[mode];
+
+  if (tool === 'eyedropper') {
+    const c = getDot(x, y);
+    if (right) bgIdx = c; else fgIdx = c;
+    updateColorUI();
+    return;
+  }
+  if (tool === 'charsel') {
+    const col = Math.floor(x / (md.dotW / md.cols));
+    const row = Math.floor(y / (md.dotH / md.rows));
+    selectedCell = {col, row};
+    document.getElementById('char-pos-label').textContent =
+      `[${col},${row}] ATTR:0x${attr[row*md.cols+col].toString(16).toUpperCase().padStart(2,'0')}`;
+    updateCharGrid();
+    updateAttrInfo(col, row);
+    return;
+  }
+  if (tool === 'fill') {
+    if (mode < 3) return; // SCR1/2は未対応
+    pushUndo();
+    floodFill(x, y, color);
+    render();
+    return;
+  }
+
+  pushUndo();
+  isDrawing = true;
+  startX = x; startY = y;
+
+  if (tool === 'pen' || tool === 'eraser') {
+    setDot(x, y, tool === 'eraser' ? bgIdx : color);
+    render();
+  }
+}
+
+function onMove(e) {
+  const {x, y} = getCanvasXY(e);
+  const md = MODES[mode];
+  const col = Math.floor(x / (md.dotW / md.cols));
+  const row = Math.floor(y / (md.dotH / md.rows));
+  const attrIdx = mode >= 3 ? Math.floor(y/16)*md.cols + col : row*md.cols + col;
+  const attrByte = attr[Math.min(attrIdx, md.attrSize-1)];
+  const vramOffset = mode >= 3 ? md.attrSize + y*32 + Math.floor(x/(mode===3?4:8))
+                                : md.attrSize + row*md.cols + col;
+
+  document.getElementById('coord-info').innerHTML =
+    `X:${x} Y:${y}<br>ATTR:${col},${row>=md.rows?md.rows-1:row}<br>VRAM:$${vramOffset.toString(16).toUpperCase().padStart(4,'0')}h`;
+
+  if (!isDrawing) return;
+  const right = e.button === 2;
+  const color = getDrawColor(right);
+
+  if (tool === 'pen' || tool === 'eraser') {
+    setDot(x, y, tool === 'eraser' ? bgIdx : color);
+    render();
+  } else if (tool === 'line' || tool === 'rect' || tool === 'rectfill') {
+    if (mode < 3) return;
+    const tmp = data.slice();
+    if (tool === 'line') drawBresenham(startX, startY, x, y, color, tmp);
+    else drawRect(startX, startY, x, y, color, tool === 'rectfill', tmp);
+    render(tmp);
+  }
+}
+
+function onUp(e) {
+  if (!isDrawing) return;
+  const ev = e.changedTouches ? e.changedTouches[0] : e;
+  const {x, y} = getCanvasXY(ev);
+  const right = e.button === 2;
+  const color = getDrawColor(right);
+
+  if (mode >= 3) {
+    if (tool === 'line') drawBresenham(startX, startY, x, y, color);
+    else if (tool === 'rect') drawRect(startX, startY, x, y, color, false);
+    else if (tool === 'rectfill') drawRect(startX, startY, x, y, color, true);
+  }
+  isDrawing = false;
+  render();
+}
+
+// ═══════════════════════════════════════════════════════
+// アトリビュート表示
+// ═══════════════════════════════════════════════════════
+function updateAttrInfo(col, row) {
+  const md = MODES[mode];
+  const idx = row * md.cols + col;
+  const a = attr[idx] || 0;
+  const ag  = (a >> 7) & 1;
+  const as_ = (a >> 6) & 1;
+  const ie  = (a >> 5) & 1;
+  const gm0 = (a >> 4) & 1;
+  const gm1 = (a >> 3) & 1;
+  const gm2 = (a >> 2) & 1;
+  const cssA= (a >> 1) & 1;
+  const inv = a & 1;
+  document.getElementById('attr-info').innerHTML =
+    `Byte: 0x${a.toString(16).toUpperCase().padStart(2,'0')}<br>` +
+    `#A/G:${ag} #A/S:${as_} IE:${ie}<br>` +
+    `GM:${gm0}${gm1}${gm2} CSS:${cssA} INV:${inv}`;
+}
+
+// ═══════════════════════════════════════════════════════
+// キャラクタグリッド (SCR1/2)
+// ═══════════════════════════════════════════════════════
+function updateCharGrid() {
+  if (!selectedCell || mode > 2) return;
+  const {col, row} = selectedCell;
+  const md = MODES[mode];
+  const idx = row * md.cols + col;
+  const grid = document.getElementById('char-grid');
+  grid.innerHTML = '';
+  const byte = data[idx] || 0;
+  const attrByte = attr[idx] || 0;
+  const cssA = (attrByte >> 1) & 1;
+  const pal = md.getPalette(css);
+
+  if (mode === 1) {
+    // キャラコードのビットパターンを8×8表示
+    for (let r = 0; r < 8; r++) {
+      for (let c2 = 0; c2 < 8; c2++) {
+        const cell = document.createElement('div');
+        cell.className = 'cg-cell';
+        // キャラコードのビット表示（上位8ビットを8列に）
+        const bit = (byte >> (7 - c2)) & 1;
+        if (bit) { cell.classList.add('on'); cell.style.background = pal[cssA*2]?.rgb || '#ffb830'; }
+        grid.appendChild(cell);
+      }
+    }
+  } else if (mode === 2) {
+    // セミグラフィック: 2×3ドット → 8×8グリッドで表示
+    const colorCode = (byte >> 6) & 0x03;
+    const dots = byte & 0x3F;
+    const color = pal[colorCode+1]?.rgb || '#ffb830';
+    for (let r = 0; r < 3; r++) {
+      for (let c2 = 0; c2 < 2; c2++) {
+        const bitIdx = (1 - c2) + r * 2;
+        const on = (dots >> bitIdx) & 1;
+        const cell = document.createElement('div');
+        cell.className = 'cg-cell' + (on ? ' on' : '');
+        if (on) cell.style.background = color;
+        cell.addEventListener('click', () => {
+          pushUndo();
+          const cur = (data[idx] >> bitIdx) & 1;
+          if (cur) data[idx] &= ~(1 << bitIdx);
+          else data[idx] |= (1 << bitIdx);
+          render();
+          updateCharGrid();
+        });
+        grid.appendChild(cell);
+      }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// Undo/Redo
+// ═══════════════════════════════════════════════════════
+function pushUndo() {
+  undoStack.push({ attr: attr.slice(), data: data.slice(), mode, css });
+  if (undoStack.length > MAX_UNDO) undoStack.shift();
+  redoStack = [];
+  document.getElementById('sb-undo').textContent = undoStack.length;
+}
+
+function undo() {
+  if (!undoStack.length) return;
+  redoStack.push({ attr: attr.slice(), data: data.slice(), mode, css });
+  const s = undoStack.pop();
+  attr = s.attr; data = s.data; css = s.css;
+  if (s.mode !== mode) { mode = s.mode; updateModeUI(); resizeCanvases(); }
+  render();
+  document.getElementById('sb-undo').textContent = undoStack.length;
+  updateCharGrid();
+}
+
+function redo() {
+  if (!redoStack.length) return;
+  undoStack.push({ attr: attr.slice(), data: data.slice(), mode, css });
+  const s = redoStack.pop();
+  attr = s.attr; data = s.data; css = s.css;
+  if (s.mode !== mode) { mode = s.mode; updateModeUI(); resizeCanvases(); }
+  render();
+  document.getElementById('sb-undo').textContent = undoStack.length;
+  updateCharGrid();
+}
+
+// ═══════════════════════════════════════════════════════
+// PNG エクスポート
+// ═══════════════════════════════════════════════════════
+document.getElementById('btn-png').addEventListener('click', () => {
+  const md = MODES[mode];
+  const exp = document.createElement('canvas');
+  exp.width = md.dotW; exp.height = md.dotH;
+  const ec = exp.getContext('2d');
+  const pal = md.getPalette(css);
+
+  if (mode === 3) {
+    for (let y = 0; y < md.dotH; y++) {
+      for (let bx = 0; bx < 32; bx++) {
+        const byte = data[y*32+bx];
+        for (let d = 0; d < 4; d++) {
+          const ci = (byte >> (6-d*2)) & 0x03;
+          ec.fillStyle = pal[ci].rgb;
+          ec.fillRect(bx*4+d, y, 1, 1);
+        }
+      }
+    }
+  } else if (mode === 4) {
+    for (let y = 0; y < md.dotH; y++) {
+      for (let bx = 0; bx < 32; bx++) {
+        const byte = data[y*32+bx];
+        for (let d = 0; d < 8; d++) {
+          const bit = (byte >> (7-d)) & 1;
+          ec.fillStyle = pal[bit].rgb;
+          ec.fillRect(bx*8+d, y, 1, 1);
+        }
+      }
+    }
+  } else {
+    // SCR1/2: 簡易
+    const cw = md.dotW/md.cols, ch = md.dotH/md.rows;
+    for (let r = 0; r < md.rows; r++) {
+      for (let c = 0; c < md.cols; c++) {
+        ec.fillStyle = pal[0].rgb;
+        ec.fillRect(c*cw, r*ch, cw, ch);
+      }
+    }
+  }
+
+  exp.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `pc6001_screen${mode}_css${css}.png`;
+    a.click();
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// ASM エクスポート — 実機VRAM形式
+// ═══════════════════════════════════════════════════════
+document.getElementById('btn-asm').addEventListener('click', () => {
+  const md = MODES[mode];
+  const out = [];
+  out.push(`; PC-6001 VRAM Data — ${md.name}`);
+  out.push(`; 出典仕様: https://000.la.coocan.jp/p6/tech.html#vram`);
+  out.push(`; ATTR: ${md.attrSize} bytes (先頭512B) + DATA: ${md.dataSize} bytes`);
+  out.push(`; CSS=${css} (カラーセット${css===0?'1':'2'})`);
+  out.push(`;`);
+
+  // アトリビュート (先頭512B)
+  out.push(`; ── ATTRIBUTE (${md.attrSize} bytes) ──`);
+  out.push(`VRAM_ATTR:`);
+  for (let i = 0; i < md.attrSize; i += 16) {
+    const bytes = [];
+    for (let j = 0; j < 16 && i+j < md.attrSize; j++) {
+      bytes.push('0' + attr[i+j].toString(16).toUpperCase().padStart(2,'0') + 'H');
+    }
+    const col = i % md.cols;
+    const row = Math.floor(i / md.cols);
+    out.push(`    DB  ${bytes.join(', ')}  ; row=${row} col=${col}-${col+bytes.length-1}`);
+  }
+
+  out.push('');
+
+  // データ
+  out.push(`; ── DATA (${md.dataSize} bytes) ──`);
+  if (mode === 1) {
+    out.push(`VRAM_DATA:  ; SCREEN 1 キャラコード 32×16`);
+    for (let row = 0; row < md.rows; row++) {
+      const bytes = [];
+      for (let col = 0; col < md.cols; col++) {
+        bytes.push('0' + data[row*md.cols+col].toString(16).toUpperCase().padStart(2,'0') + 'H');
+      }
+      out.push(`    DB  ${bytes.join(', ')}  ; Y=${row}`);
+    }
+  } else if (mode === 2) {
+    out.push(`VRAM_DATA:  ; SCREEN 2 セミグラフィック 32×16`);
+    out.push(`;           ; bit7-6=カラーコード bit5-0=ドットパターン`);
+    for (let row = 0; row < md.rows; row++) {
+      const bytes = [];
+      for (let col = 0; col < md.cols; col++) {
+        bytes.push('0' + data[row*md.cols+col].toString(16).toUpperCase().padStart(2,'0') + 'H');
+      }
+      out.push(`    DB  ${bytes.join(', ')}  ; Y=${row}`);
+    }
+  } else if (mode === 3) {
+    out.push(`VRAM_DATA:  ; SCREEN 3 128×192 2bit/dot MSB=左`);
+    for (let y = 0; y < md.dotH; y++) {
+      const bytes = [];
+      for (let bx = 0; bx < 32; bx++) {
+        bytes.push('0' + data[y*32+bx].toString(16).toUpperCase().padStart(2,'0') + 'H');
+      }
+      out.push(`    DB  ${bytes.join(', ')}  ; Y=${y}`);
+    }
+  } else if (mode === 4) {
+    out.push(`VRAM_DATA:  ; SCREEN 4 256×192 1bit/dot MSB=左`);
+    for (let y = 0; y < md.dotH; y++) {
+      const bytes = [];
+      for (let bx = 0; bx < 32; bx++) {
+        bytes.push('0' + data[y*32+bx].toString(16).toUpperCase().padStart(2,'0') + 'H');
+      }
+      out.push(`    DB  ${bytes.join(', ')}  ; Y=${y}`);
+    }
+  }
+
+  out.push('');
+  out.push('    END');
+
+  const blob = new Blob([out.join('\n')], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `pc6001_screen${mode}_css${css}.asm`;
+  a.click();
+});
+
+// ═══════════════════════════════════════════════════════
+// .p6g 保存 / 読込
+// ═══════════════════════════════════════════════════════
+document.getElementById('btn-p6g-save').addEventListener('click', () => {
+  const obj = {
+    format: 'pc6001-gfx',
+    version: 2,
+    mode, css,
+    attr: Array.from(attr),
+    data: Array.from(data),
+  };
+  const blob = new Blob([JSON.stringify(obj)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `pc6001_screen${mode}_css${css}.p6g`;
+  a.click();
+});
+
+document.getElementById('btn-p6g-load').addEventListener('click', () =>
+  document.getElementById('p6g-input').click());
+
+document.getElementById('p6g-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    let obj;
+    try { obj = JSON.parse(ev.target.result); } catch {
+      alert('.p6g 読込エラー: JSON解析失敗');
+      return;
+    }
+    if (obj.format !== 'pc6001-gfx') { alert('.p6g 読込エラー: 非対応フォーマット'); return; }
+    if (obj.version !== 2) { alert(`.p6g 読込エラー: このファイルはv${obj.version}形式です。v2形式が必要です。`); return; }
+    if (![1,2,3,4].includes(obj.mode)) { alert('.p6g 読込エラー: mode値不正'); return; }
+    const md = MODES[obj.mode];
+    if (!Array.isArray(obj.attr) || obj.attr.length !== md.attrSize) { alert('.p6g 読込エラー: attr長不正'); return; }
+    if (!Array.isArray(obj.data) || obj.data.length !== md.dataSize) { alert('.p6g 読込エラー: data長不正'); return; }
+    if (obj.mode !== mode && !confirm(`SCREEN ${obj.mode} に切り替えて読み込みます。現データは消えます。続けますか？`)) {
+      e.target.value = ''; return;
+    }
+    pushUndo();
+    mode = obj.mode; css = obj.css || 0;
+    attr = new Uint8Array(obj.attr);
+    data = new Uint8Array(obj.data);
+    undoStack = []; redoStack = [];
+    updateModeUI(); resizeCanvases(); render();
+    document.getElementById('sb-undo').textContent = 0;
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+// ═══════════════════════════════════════════════════════
+// 画像読み込み (SCR3/4のみ実装)
+// ═══════════════════════════════════════════════════════
+document.getElementById('btn-load-img').addEventListener('click', () => {
+  if (mode < 3) { alert('画像読み込みは SCREEN 3 / SCREEN 4 のみ対応しています。'); return; }
+  document.getElementById('img-input').click();
+});
+
+document.getElementById('img-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    const md = MODES[mode];
+    const tmp = document.createElement('canvas');
+    tmp.width = md.dotW; tmp.height = md.dotH;
+    const tc = tmp.getContext('2d');
+    tc.drawImage(img, 0, 0, md.dotW, md.dotH);
+    const imgData = tc.getImageData(0, 0, md.dotW, md.dotH);
+    const pal = md.getPalette(css);
+
+    function nearestPal(r, g, b) {
+      let best = 0, bestD = Infinity;
+      pal.forEach((c, i) => {
+        const pr = parseInt(c.rgb.slice(1,3),16);
+        const pg = parseInt(c.rgb.slice(3,5),16);
+        const pb = parseInt(c.rgb.slice(5,7),16);
+        const d = (r-pr)**2 + (g-pg)**2 + (b-pb)**2;
+        if (d < bestD) { bestD = d; best = i; }
+      });
+      return best;
+    }
+
+    pushUndo();
+    const newData = new Uint8Array(md.dataSize);
+
+    if (mode === 3) {
+      for (let y = 0; y < md.dotH; y++) {
+        for (let bx = 0; bx < 32; bx++) {
+          let byte = 0;
+          for (let d = 0; d < 4; d++) {
+            const x = bx*4+d;
+            const idx = (y*md.dotW+x)*4;
+            const ci = nearestPal(imgData.data[idx], imgData.data[idx+1], imgData.data[idx+2]);
+            byte |= (ci & 0x03) << (6-d*2);
+          }
+          newData[y*32+bx] = byte;
+        }
+      }
+    } else if (mode === 4) {
+      for (let y = 0; y < md.dotH; y++) {
+        for (let bx = 0; bx < 32; bx++) {
+          let byte = 0;
+          for (let d = 0; d < 8; d++) {
+            const x = bx*8+d;
+            const idx = (y*md.dotW+x)*4;
+            const ci = nearestPal(imgData.data[idx], imgData.data[idx+1], imgData.data[idx+2]);
+            if (ci & 1) byte |= (1 << (7-d));
+          }
+          newData[y*32+bx] = byte;
+        }
+      }
+    }
+    data = newData;
+    render();
+  };
+  img.src = URL.createObjectURL(file);
+  e.target.value = '';
+});
+
+// ═══════════════════════════════════════════════════════
+// コントロール
+// ═══════════════════════════════════════════════════════
+document.querySelectorAll('.mode-tab').forEach(t => {
+  t.addEventListener('click', () => {
+    if (+t.dataset.mode === mode) return;
+    if (!confirm(`SCREEN ${t.dataset.mode} に切り替えます。現データは消えます。続けますか？`)) return;
+    initMode(+t.dataset.mode);
+  });
+});
+
+document.querySelectorAll('.css-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    css = +b.dataset.css;
+    fillDefaultAttr();
+    document.querySelectorAll('.css-btn').forEach(x => x.classList.toggle('active', +x.dataset.css === css));
+    buildPalette(); updateColorUI(); render();
+  });
+});
+
+document.querySelectorAll('.tool-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    tool = b.dataset.tool;
+    document.querySelectorAll('.tool-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('sb-tool').textContent = tool.toUpperCase();
+  });
+});
+
+document.getElementById('zoom-in').addEventListener('click', () => {
+  if (zoom >= 8) return;
+  zoom++;
+  document.getElementById('zoom-val').textContent = `×${zoom}`;
+  resizeCanvases(); render();
+});
+document.getElementById('zoom-out').addEventListener('click', () => {
+  if (zoom <= 1) return;
+  zoom--;
+  document.getElementById('zoom-val').textContent = `×${zoom}`;
+  resizeCanvases(); render();
+});
+
+document.getElementById('btn-clear').addEventListener('click', () => {
+  if (!confirm('全消去しますか？')) return;
+  pushUndo();
+  data = new Uint8Array(MODES[mode].dataSize);
+  fillDefaultAttr();
+  render(); updateCharGrid();
+});
+
+document.getElementById('btn-undo').addEventListener('click', undo);
+document.getElementById('btn-redo').addEventListener('click', redo);
+
+let gridOn = true, attrGridOn = true;
+document.getElementById('btn-grid').addEventListener('click', () => {
+  gridOn = !gridOn; showGrid = gridOn;
+  document.getElementById('btn-grid').textContent = `グリッド: ${gridOn?'ON':'OFF'}`;
+  drawGrid();
+});
+document.getElementById('btn-attr-grid').addEventListener('click', () => {
+  attrGridOn = !attrGridOn; showAttrGrid = attrGridOn;
+  document.getElementById('btn-attr-grid').textContent = `属性グリッド: ${attrGridOn?'ON':'OFF'}`;
+  drawGrid();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); return; }
+  if (e.ctrlKey && (e.key === 'y'||e.key === 'Y')) { e.preventDefault(); redo(); return; }
+  const map = { p:'pen', e:'eraser', f:'fill', l:'line', r:'rect', i:'eyedropper', c:'charsel' };
+  const t = (e.shiftKey && e.key.toLowerCase()==='r') ? 'rectfill' : map[e.key.toLowerCase()];
+  if (t) {
+    tool = t;
+    document.querySelectorAll('.tool-btn').forEach(b => b.classList.toggle('active', b.dataset.tool===t));
+    document.getElementById('sb-tool').textContent = t.toUpperCase();
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+// 起動
+// ═══════════════════════════════════════════════════════
+initMode(1);
+</script>
+</body>
+</html>
