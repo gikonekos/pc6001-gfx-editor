@@ -43,6 +43,13 @@ No install, no dependencies — open the HTML file and start drawing.
 | `pc6001-gfx-editor2.html` | Editor v2 application |
 | `pc6001-gfx-editor2-manual.html` | v2 Specification & user manual (EN/JP) |
 
+### Third-party compatible CGROM
+
+The `arc/` folder includes a compatible CGROM archive by eighttails.
+This is not an original NEC ROM dump.
+According to the included documentation, the file is intended for free use and redistribution.
+Please keep the original attribution and license text together with the archive.
+
 ---
 
 ## v1 Series — April Fools' Edition
@@ -162,6 +169,13 @@ MIT License — see [LICENSE](LICENSE) for details.
 |----------|------|
 | `pc6001-gfx-editor2.html` | エディタ v2 本体 |
 | `pc6001-gfx-editor2-manual.html` | v2 仕様書・利用マニュアル（日英） |
+
+### サードパーティ製 互換CGROM
+
+`arc/` フォルダには、eighttails氏による互換CGROMアーカイブが含まれています。
+これは純正の NEC ROM ダンプではありません。
+同梱文書の記載に基づき、自由利用・再配布可能なファイルとして扱っています。
+再配布時は、元のクレジットおよびライセンス文書を一緒に保持してください。
 
 ---
 
