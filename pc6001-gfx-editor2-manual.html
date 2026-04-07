@@ -223,17 +223,17 @@ footer span { color: var(--amber-dim); }
   <span class="topbar-sep">·</span>
   <a href="#en-top">English</a>
   <div class="topbar-spacer"></div>
-  <span>v2.0 — HARDWARE SPEC</span>
+  <span>v2.1 — SCREEN 1/2 EDIT</span>
 </div>
 
 <div class="page">
 
 <div class="hero">
-  <div class="hero-badge">DOCUMENTATION — v2 HARDWARE SPEC EDITION</div>
+  <div class="hero-badge">DOCUMENTATION — v2.1 SCREEN 1/2 EDITION</div>
   <h1 id="ja-top">PC-<em>6001</em> GFX EDITOR v2<span class="cursor"></span></h1>
   <div class="hero-sub">仕様書 &amp; 利用マニュアル　／　Specification &amp; User Manual</div>
   <div class="ver-tag">
-    <span class="v">v2.0</span>
+    <span class="v">v2.1</span>
     <span class="s">HARDWARE SPEC COMPLIANT</span>
     <span class="d">v1系とは別ファイル</span>
   </div>
@@ -247,7 +247,7 @@ footer span { color: var(--amber-dim); }
     v1系は実機VRAMとは異なる独自のモード番号・色数・データ構造を採用しています。<br>
     <strong>v2系（本ファイル）</strong>は、実機VRAM仕様に準拠した再設計版です。
     モード番号・色セット・データ構造・ASM出力がすべて実機仕様に基づいています。
-    v2.0は「正しい実機モデルを立て直した最初の版」であり、機能を追い込んだ完成版ではありません。
+    v2.1では SCREEN 1（CGROMキャラクタ表示・編集）と SCREEN 2（セミグラフィック描画）の実装が完成しました。
   </p>
 </div>
 
@@ -279,9 +279,9 @@ footer span { color: var(--amber-dim); }
     <div class="card-head">ℹ 仕様出典</div>
     <p>本エディタの実機仕様は <a href="https://000.la.coocan.jp/p6/tech.html#vram" style="color:var(--cyan)">https://000.la.coocan.jp/p6/tech.html#vram</a> を参照しています。</p>
   </div>
-  <div class="card warn">
-    <div class="card-head">⚠ v2.0 は実機準拠の土台版です</div>
-    <p>v2.0 は実機モデルの正確な立て直しを優先した初版です。SCREEN 1のキャラクタ表示・セミグラフィックの完全な編集機能・画像変換の品質追い込みなどは v2.1 以降で対応予定です。</p>
+  <div class="card info">
+    <div class="card-head">ℹ v2.1 で SCREEN 1 / 2 の編集機能が実装されました</div>
+    <p>互換CGROM（eighttails氏作、M+ Bitmap Font ベース、自由利用可）を内蔵。SCREEN 1 のキャラクタ表示・コード編集、SCREEN 2 のセミグラフィックドット描画が利用できます。詳細は <a href="#ja-thirdparty" style="color:var(--cyan)">サードパーティ</a> を参照してください。</p>
   </div>
 </section>
 
@@ -405,20 +405,21 @@ footer span { color: var(--amber-dim); }
     <table>
       <thead><tr><th>ツール</th><th>キー</th><th>説明</th><th>対応モード</th></tr></thead>
       <tbody>
-        <tr><td>✏️ ペン</td><td><kbd>P</kbd></td><td>1ドット単位フリーハンド</td><td>SCR3/4</td></tr>
-        <tr><td>🧹 消しゴム</td><td><kbd>E</kbd></td><td>BG色で塗りつぶし</td><td>SCR3/4</td></tr>
-        <tr><td>🪣 塗りつぶし</td><td><kbd>F</kbd></td><td>フラッドフィル</td><td>SCR3/4</td></tr>
-        <tr><td>╱ 直線</td><td><kbd>L</kbd></td><td>ブレゼンハム直線</td><td>SCR3/4</td></tr>
-        <tr><td>□ 矩形（枠）</td><td><kbd>R</kbd></td><td>矩形の枠線</td><td>SCR3/4</td></tr>
-        <tr><td>■ 矩形（塗り）</td><td><kbd>Shift+R</kbd></td><td>塗りつぶし矩形</td><td>SCR3/4</td></tr>
-        <tr><td>💧 スポイト</td><td><kbd>I</kbd></td><td>色の取得</td><td>SCR3/4</td></tr>
-        <tr><td>⊞ アトリビュート選択</td><td><kbd>C</kbd></td><td>アトリビュート表示・SCR1/2の簡易編集</td><td>全モード</td></tr>
+        <tr><td>✏️ ペン</td><td><kbd>P</kbd></td><td>1ドット単位フリーハンド</td><td>SCR2/3/4</td></tr>
+        <tr><td>🧹 消しゴム</td><td><kbd>E</kbd></td><td>BG色で塗りつぶし</td><td>SCR2/3/4</td></tr>
+        <tr><td>🪣 塗りつぶし</td><td><kbd>F</kbd></td><td>フラッドフィル</td><td>SCR2/3/4</td></tr>
+        <tr><td>╱ 直線</td><td><kbd>L</kbd></td><td>ブレゼンハム直線</td><td>SCR2/3/4</td></tr>
+        <tr><td>□ 矩形（枠）</td><td><kbd>R</kbd></td><td>矩形の枠線</td><td>SCR2/3/4</td></tr>
+        <tr><td>■ 矩形（塗り）</td><td><kbd>Shift+R</kbd></td><td>塗りつぶし矩形</td><td>SCR2/3/4</td></tr>
+        <tr><td>💧 スポイト</td><td><kbd>I</kbd></td><td>色の取得</td><td>SCR2/3/4</td></tr>
+        <tr><td>⊞ アトリビュート選択</td><td><kbd>C</kbd></td><td>アトリビュート表示・SCR1/2の編集（キャラコード入力／セミグラドット編集）</td><td>全モード</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="card warn">
-    <div class="card-head">⚠ v2.0 の描画対応状況</div>
-    <p>ドット単位の描画は SCREEN 3 / SCREEN 4 のみフル対応しています。SCREEN 1 / 2 のキャラクタ・セミグラフィック編集は v2.0 では簡易表示のみです。完全な編集機能は v2.1 以降で対応予定です。</p>
+  <div class="card info">
+    <div class="card-head">ℹ v2.1 の描画対応状況</div>
+    <p>SCREEN 2：ペン・消しゴム・直線・矩形・塗りつぶし・スポイトがドット単位で使用できます。セルをクリック（⊞ ツール）してドットを個別トグルすることもできます。<br>
+    SCREEN 1：⊞ ツールでキャラクタセルをクリックし、右パネルのキャラコード入力欄（0–255）でコードを変更します。CGROMプレビュー（8×12）が右パネルに表示されます。ドット単位描画は SCREEN 1 の性質上非対応です。</p>
   </div>
 </section>
 
@@ -435,10 +436,27 @@ footer span { color: var(--amber-dim); }
     <li><mark>.p6g 保存</mark> で編集状態を保存 / <mark>PNG ダウンロード</mark> で画像出力 / <mark>ASM</mark> で実機VRAM形式テキスト出力</li>
   </ol>
 
+  <div class="sub-head">SCREEN 1 の編集（キャラクタモード）</div>
+  <ol class="doc-list">
+    <li>上部タブで SCR1 を選択</li>
+    <li>⊞ ツール（<kbd>C</kbd>）でキャンバス上のキャラクタセルをクリック</li>
+    <li>右パネルの CHAR PREVIEW に CGROM の 8×12 グリフが表示される</li>
+    <li>CODE 入力欄（0–255）でキャラコードを変更し Enter で確定</li>
+    <li>CSS ボタンで FG 色（CSS=0: 白 / CSS=1: 緑）を切り替え可能</li>
+  </ol>
+
+  <div class="sub-head">SCREEN 2 の編集（セミグラフィックモード）</div>
+  <ol class="doc-list">
+    <li>上部タブで SCR2 を選択</li>
+    <li>パレットで FG 色（1–4）を設定</li>
+    <li>ペン・消しゴム・直線・矩形・塗りつぶしで 64×48 ドットを直接描画</li>
+    <li>⊞ ツールでセルをクリックすると右パネルで 2×3 ドットを個別トグルできる</li>
+  </ol>
+
   <div class="sub-head">画像読み込み（SCREEN 3 / 4 のみ）</div>
   <p>
     「画像読み込み…」で PNG / JPEG 等を取り込めます。現在のモードと CSS の色セットに最近傍変換されます。
-    SCREEN 1 / 2 への画像読み込みは v2.0 では非対応です。
+    SCREEN 1 / 2 への画像読み込みは非対応です。
   </p>
 
   <div class="sub-head">アトリビュートグリッド</div>
@@ -506,12 +524,12 @@ footer span { color: var(--amber-dim); }
 <section id="ja-notes">
   <div class="sec-head"><span class="sec-num">09</span><h2>注意事項・制限</h2></div>
   <ul class="doc-list">
-    <li>v2.0 は実機準拠の土台版です。SCREEN 1 / 2 のキャラクタ・セミグラフィック編集は簡易表示のみです。</li>
-    <li>画像読み込みは SCREEN 3 / 4 のみ対応。SCREEN 1 / 2 への変換は v2.1 以降で対応予定。</li>
+    <li>SCREEN 1 は⊞ツールでキャラコード（0–255）を直接入力して編集します。ドット単位描画には対応していません。</li>
+    <li>画像読み込みは SCREEN 3 / 4 のみ対応。SCREEN 1 / 2 への変換は非対応です。</li>
     <li>PNG 保存は表示画像のエクスポートです。編集状態の保存には .p6g 形式を使用してください。</li>
     <li>v1系の .p6g ファイル（version: 1）は読み込めません。v2系は version: 2 形式を使用します。</li>
     <li>ファイルの出力先はブラウザのセキュリティ制約により選択できません。ブラウザの既定ダウンロードフォルダに保存されます。</li>
-    <li>SCR2 / SCR3 / SCR4 を含む全機能のデバッグ・検証は継続中です。</li>
+    <li>SCREEN 1 の内蔵CGROMは eighttails 氏作の互換フォント（M+ Bitmap Font ベース）です（THIRD_PARTY.md 参照）。</li>
   </ul>
 </section>
 
@@ -532,7 +550,21 @@ footer span { color: var(--amber-dim); }
             2bit/dot (SCR3) / 1bit/dot (SCR4) のデータ構造を実装。
             ASM出力を実機VRAM形式に再設計。
             .p6g 形式は version:2 として v1系と分離。
-            SCREEN 3 / 4 の描画ツールフル対応。SCREEN 1 / 2 は簡易表示のみ（v2.1以降で対応予定）。
+            SCREEN 3 / 4 の描画ツールフル対応。SCREEN 1 / 2 は簡易表示のみ。
+          </td>
+        </tr>
+        <tr>
+          <td>v2.1</td>
+          <td>2026-04-07</td>
+          <td>
+            <strong>SCREEN 1 / 2 編集機能実装</strong><br>
+            互換CGROM（eighttails氏作、M+ Bitmap Font ベース）を内蔵し、SCREEN 1 のキャラクタ表示を実機フォントで描画。
+            ⊞ ツールでキャラコード（0–255）を入力できる UI を右パネルに追加。
+            CGROMプレビュー（8×12ドット）を右パネルに表示。
+            SCREEN 2 のセミグラフィックをペン・消しゴム・直線・矩形・塗りつぶし・スポイトでドット編集可能に。
+            セミグラドットのビットマッピングバグを修正（renderSCR2 と updateCharGrid を統一）。
+            PNG エクスポートを SCR1/2 に対応（実機フォント描画）。
+            THIRD_PARTY.md（CGROMライセンス）追加。
           </td>
         </tr>
       </tbody>
@@ -574,9 +606,9 @@ footer span { color: var(--amber-dim); }
     <div class="card-head">ℹ SPEC REFERENCE</div>
     <p>Hardware specifications referenced from <a href="https://000.la.coocan.jp/p6/tech.html#vram" style="color:var(--cyan)">https://000.la.coocan.jp/p6/tech.html#vram</a></p>
   </div>
-  <div class="card warn">
-    <div class="card-head">⚠ v2.0 IS A FOUNDATION RELEASE</div>
-    <p>v2.0 prioritizes correct hardware modeling. Full SCREEN 1/2 character editing, advanced image conversion, and quality improvements are planned for v2.1+.</p>
+  <div class="card info">
+    <div class="card-head">ℹ SCREEN 1/2 editing is now available in v2.1</div>
+    <p>A compatible CGROM (by eighttails, based on M+ Bitmap Font, freely redistributable) is embedded. SCREEN 1 character display and code editing, and SCREEN 2 semi-graphic dot drawing are now supported. See THIRD_PARTY.md for license details.</p>
   </div>
 </section>
 
@@ -635,14 +667,14 @@ footer span { color: var(--amber-dim); }
     <table>
       <thead><tr><th>Tool</th><th>Key</th><th>Description</th><th>Modes</th></tr></thead>
       <tbody>
-        <tr><td>✏️ Pen</td><td><kbd>P</kbd></td><td>Freehand per-dot drawing</td><td>SCR3/4</td></tr>
-        <tr><td>🧹 Eraser</td><td><kbd>E</kbd></td><td>Paint with BG color</td><td>SCR3/4</td></tr>
-        <tr><td>🪣 Fill</td><td><kbd>F</kbd></td><td>Flood fill</td><td>SCR3/4</td></tr>
-        <tr><td>╱ Line</td><td><kbd>L</kbd></td><td>Bresenham line</td><td>SCR3/4</td></tr>
-        <tr><td>□ Rectangle</td><td><kbd>R</kbd></td><td>Outline rectangle</td><td>SCR3/4</td></tr>
-        <tr><td>■ Filled Rect</td><td><kbd>Shift+R</kbd></td><td>Filled rectangle</td><td>SCR3/4</td></tr>
-        <tr><td>💧 Eyedropper</td><td><kbd>I</kbd></td><td>Pick color</td><td>SCR3/4</td></tr>
-        <tr><td>⊞ Attr Select</td><td><kbd>C</kbd></td><td>Show attribute info, SCR1/2 basic edit</td><td>All</td></tr>
+        <tr><td>✏️ Pen</td><td><kbd>P</kbd></td><td>Freehand per-dot drawing</td><td>SCR2/3/4</td></tr>
+        <tr><td>🧹 Eraser</td><td><kbd>E</kbd></td><td>Paint with BG color</td><td>SCR2/3/4</td></tr>
+        <tr><td>🪣 Fill</td><td><kbd>F</kbd></td><td>Flood fill</td><td>SCR2/3/4</td></tr>
+        <tr><td>╱ Line</td><td><kbd>L</kbd></td><td>Bresenham line</td><td>SCR2/3/4</td></tr>
+        <tr><td>□ Rectangle</td><td><kbd>R</kbd></td><td>Outline rectangle</td><td>SCR2/3/4</td></tr>
+        <tr><td>■ Filled Rect</td><td><kbd>Shift+R</kbd></td><td>Filled rectangle</td><td>SCR2/3/4</td></tr>
+        <tr><td>💧 Eyedropper</td><td><kbd>I</kbd></td><td>Pick color</td><td>SCR2/3/4</td></tr>
+        <tr><td>⊞ Attr Select</td><td><kbd>C</kbd></td><td>Show attribute info; SCR1: char code input; SCR2: dot toggle</td><td>All</td></tr>
       </tbody>
     </table>
   </div>
@@ -650,6 +682,8 @@ footer span { color: var(--amber-dim); }
 
 <section id="en-usage">
   <div class="sec-head"><span class="sec-num">06</span><h2>How to Use</h2></div>
+
+  <div class="sub-head">Basic Workflow (SCREEN 3 / 4)</div>
   <ol class="doc-list">
     <li>Select SCR3 or SCR4 from the tab bar</li>
     <li>Choose a color set (CSS=0 / CSS=1) in the right panel</li>
@@ -657,6 +691,26 @@ footer span { color: var(--amber-dim); }
     <li>Draw with the tools</li>
     <li>Save with <mark>.p6g 保存</mark>, export PNG, or download assembler output</li>
   </ol>
+
+  <div class="sub-head">SCREEN 1 Editing (Character Mode)</div>
+  <ol class="doc-list">
+    <li>Select SCR1 from the tab bar</li>
+    <li>Use the ⊞ tool (<kbd>C</kbd>) and click a character cell on the canvas</li>
+    <li>The right panel shows an 8×12 CGROM glyph preview (CHAR PREVIEW)</li>
+    <li>Enter a char code (0–255) in the CODE field and press Enter to apply</li>
+    <li>Toggle CSS to switch FG color (CSS=0: white / CSS=1: green)</li>
+  </ol>
+
+  <div class="sub-head">SCREEN 2 Editing (Semi-Graphic Mode)</div>
+  <ol class="doc-list">
+    <li>Select SCR2 from the tab bar</li>
+    <li>Set FG color in the palette (colors 1–4)</li>
+    <li>Draw on the 64×48 dot canvas with pen, eraser, line, rect, or fill</li>
+    <li>Use the ⊞ tool to click a cell and toggle individual 2×3 dots in the right panel</li>
+  </ol>
+
+  <div class="sub-head">Image Import (SCREEN 3 / 4 only)</div>
+  <p>Use "画像読み込み…" to import PNG/JPEG. Colors are mapped to the current mode/CSS palette using nearest-neighbor conversion. SCREEN 1/2 image import is not supported.</p>
 </section>
 
 <section id="en-export">
@@ -691,12 +745,12 @@ footer span { color: var(--amber-dim); }
 <section id="en-notes">
   <div class="sec-head"><span class="sec-num">09</span><h2>Notes &amp; Limitations</h2></div>
   <ul class="doc-list">
-    <li>v2.0 is a foundation release. Full SCREEN 1/2 character/semi-graphic editing is planned for v2.1+.</li>
+    <li>SCREEN 1 editing: use the ⊞ tool to click a character cell, then enter a char code (0–255) in the right panel. The 8×12 CGROM glyph preview is shown. Per-dot drawing is not supported for SCREEN 1.</li>
     <li>Image import is supported for SCREEN 3/4 only.</li>
     <li>PNG export is a display image export, not an edit state save. Use .p6g for that.</li>
     <li>v1 .p6g files (version:1) cannot be loaded in v2. v2 uses version:2 format.</li>
     <li>Files are saved to the browser's default download folder (cannot be changed due to browser security).</li>
-    <li>Full verification of all modes is ongoing.</li>
+    <li>The built-in CGROM for SCREEN 1 is a compatible font by eighttails (based on M+ Bitmap Font). See THIRD_PARTY.md.</li>
   </ul>
 </section>
 
@@ -716,7 +770,20 @@ footer span { color: var(--amber-dim); }
             CSS color sets, 2bit/dot (SCR3) and 1bit/dot (SCR4) data layout.
             ASM output redesigned to hardware VRAM format.
             .p6g format uses version:2, separate from v1.
-            Full drawing tool support for SCREEN 3/4. SCREEN 1/2 display only (full edit in v2.1+).
+            Full drawing tool support for SCREEN 3/4. SCREEN 1/2 display only.
+          </td>
+        </tr>
+        <tr>
+          <td>v2.1</td>
+          <td>2026-04-07</td>
+          <td>
+            <strong>SCREEN 1/2 editing implemented</strong><br>
+            Embedded compatible CGROM (by eighttails, M+ Bitmap Font based) for SCREEN 1 character rendering.
+            Right panel now shows 8×12 CGROM glyph preview and char code input (0–255) when using ⊞ tool on SCREEN 1.
+            SCREEN 2 semi-graphic dots are now editable with pen, eraser, line, rect, fill, and eyedropper.
+            Fixed semi-graphic dot bit-mapping bug (renderSCR2 and updateCharGrid now consistent).
+            PNG export updated for SCR1/2 (hardware font rendering).
+            Added THIRD_PARTY.md (CGROM license notice).
           </td>
         </tr>
       </tbody>
@@ -725,7 +792,7 @@ footer span { color: var(--amber-dim); }
 </section>
 
 <footer>
-  PC-6001 GFX EDITOR <span>v2.0</span> — Hardware Spec Compliant Edition<br>
+  PC-6001 GFX EDITOR <span>v2.1</span> — SCREEN 1/2 Edit Edition<br>
   NEC PC-6001 is a trademark of NEC Corporation. This tool is an independent fan project.<br>
   VRAM spec reference: <span>https://000.la.coocan.jp/p6/tech.html#vram</span>
 </footer>
