@@ -306,7 +306,7 @@ body {
   </div>
   <div class="hbar"></div>
   <span class="spec-badge">HARDWARE SPEC</span>
-  <span class="ver-badge">v2.2</span>
+  <span class="ver-badge">v2.3</span>
 </div>
 
 <div id="mode-info">—</div>
@@ -739,11 +739,12 @@ function renderSCR1(pal, src) {
       const charCode = src[row * md.cols + col];
       // アトリビュートからINV/CSS読み取り
       const attrByte = attr[row * md.cols + col];
-      const inv = attrByte & 0x01;
+      const inv  = attrByte & 0x01;
       const cssA = (attrByte >> 1) & 0x01;
-      // 簡易表示: キャラコードのビットパターンを上位ニブルで表示
-      const fgColor = inv ? pal[0].rgb : pal[cssA * 2].rgb;
-      const bgColor = inv ? pal[cssA * 2].rgb : pal[0].rgb;
+      // 実機仕様: BG=黒固定, FG=CSS/INVで選択
+      // PAL_SCR1: [0]=白, [1]=白反転(黒), [2]=緑, [3]=緑反転(暗緑)
+      const fgColor = inv ? '#000000'                          : (cssA ? '#00cc00' : '#ffffff');
+      const bgColor = inv ? (cssA ? '#00cc00' : '#ffffff')     : '#000000';
       ctx.fillStyle = bgColor;
       ctx.fillRect(col * cw * zoom, row * ch * zoom, cw * zoom, ch * zoom);
       // キャラコードをテキストで表示（簡易）
