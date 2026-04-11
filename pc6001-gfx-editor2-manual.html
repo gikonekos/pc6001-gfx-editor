@@ -223,7 +223,7 @@ footer span { color: var(--amber-dim); }
   <span class="topbar-sep">·</span>
   <a href="#en-top">English</a>
   <div class="topbar-spacer"></div>
-  <span>v2.7 — HARDWARE SPEC</span>
+  <span>v2.8 — HARDWARE SPEC</span>
 </div>
 
 <div class="page">
@@ -233,7 +233,7 @@ footer span { color: var(--amber-dim); }
   <h1 id="ja-top">PC-<em>6001</em> GFX EDITOR v2<span class="cursor"></span></h1>
   <div class="hero-sub">仕様書 &amp; 利用マニュアル　／　Specification &amp; User Manual</div>
   <div class="ver-tag">
-    <span class="v">v2.7</span>
+    <span class="v">v2.8</span>
     <span class="s">HARDWARE SPEC COMPLIANT</span>
     <span class="d">v1系とは別ファイル</span>
   </div>
@@ -523,6 +523,18 @@ footer span { color: var(--amber-dim); }
       <thead><tr><th>バージョン</th><th>日付</th><th>変更内容</th></tr></thead>
       <tbody>
         <tr>
+          <td>v2.8</td>
+          <td>2026-04-11</td>
+          <td>
+            <strong>Bayer 4×4 ディザ追加</strong><br>
+            IMAGE IMPORTセクションにディザ選択ボタンを追加（なし／Bayer、デフォルト: なし）。
+            Bayer 4×4順序型ディザを実装。各ピクセル座標(x,y)からBayer閾値を取得し、
+            控えめなスケール（±8程度）でRGBに加算してから明度優先色選択に渡す。
+            色の暴れを抑えた穏やかな設定。SCR3（4色）/ SCR4（2色）両対応。
+            Floyd-Steinberg ディザは v2.9以降で追加予定。
+          </td>
+        </tr>
+        <tr>
           <td>v2.7</td>
           <td>2026-04-11</td>
           <td>
@@ -770,6 +782,18 @@ footer span { color: var(--amber-dim); }
       <thead><tr><th>Version</th><th>Date</th><th>Changes</th></tr></thead>
       <tbody>
         <tr>
+          <td>v2.8</td>
+          <td>2026-04-11</td>
+          <td>
+            <strong>Bayer 4×4 ordered dither added</strong><br>
+            Added dither selector to IMAGE IMPORT section (none / Bayer; default: none).
+            Bayer 4×4 ordered dither: reads threshold from Bayer matrix at pixel (x,y),
+            applies a conservative offset (±8) to each RGB channel before color selection.
+            Keeps color noise moderate. Supports SCR3 (4-color) and SCR4 (2-color).
+            Floyd-Steinberg dither planned for v2.9+.
+          </td>
+        </tr>
+        <tr>
           <td>v2.7</td>
           <td>2026-04-11</td>
           <td>
@@ -851,7 +875,7 @@ footer span { color: var(--amber-dim); }
 </section>
 
 <footer>
-  PC-6001 GFX EDITOR <span>v2.7</span> — Hardware Spec Compliant Edition<br>
+  PC-6001 GFX EDITOR <span>v2.8</span> — Hardware Spec Compliant Edition<br>
   NEC PC-6001 is a trademark of NEC Corporation. This tool is an independent fan project.<br>
   VRAM spec reference: <span>https://000.la.coocan.jp/p6/tech.html#vram</span>
 </footer>

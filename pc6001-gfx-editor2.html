@@ -322,7 +322,7 @@ body {
   </div>
   <div class="hbar"></div>
   <span class="spec-badge">HARDWARE SPEC</span>
-  <span class="ver-badge">v2.7</span>
+  <span class="ver-badge">v2.8</span>
 </div>
 
 <div id="mode-info">—</div>
@@ -462,6 +462,16 @@ body {
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">
           <span style="font-size:9px;color:var(--text-dim);">小さいほど明るく・1.0=補正なし</span>
           <span id="gamma-val" style="font-size:11px;color:var(--amber);font-family:'Share Tech Mono',monospace;">0.85</span>
+        </div>
+      </div>
+      <!-- ディザ選択 -->
+      <div style="margin-bottom:5px;">
+        <div style="font-size:10px;color:var(--amber-dim);letter-spacing:1px;margin-bottom:4px;">DITHER / ディザ</div>
+        <div style="display:flex;gap:3px;">
+          <button class="action-btn active" id="btn-dither-none"
+            style="flex:1;text-align:center;padding:3px;font-size:10px;border-color:var(--amber);color:var(--amber);">なし</button>
+          <button class="action-btn" id="btn-dither-bayer"
+            style="flex:1;text-align:center;padding:3px;font-size:10px;">Bayer</button>
         </div>
       </div>
       <button class="action-btn" id="btn-load-img">画像読み込み… (PNG/JPEG等)</button>
@@ -1876,6 +1886,29 @@ document.getElementById('img-input').addEventListener('change', e => {
       return [gammaLUT[r], gammaLUT[g], gammaLUT[b]];
     }
 
+    // Bayer 4×4 ディザ
+    // 控えめなスケール(16)で色の暴れを抑える
+    // 値域: -0.5〜+0.5 × scale → 各チャンネルに加算後クランプ
+    const BAYER4 = [
+       0,  8,  2, 10,
+      12,  4, 14,  6,
+       3, 11,  1,  9,
+      15,  7, 13,  5,
+    ];
+    const BAYER_SCALE = 16; // 控えめ設定（最大±8程度）
+    const useBayer = currentDither === 'bayer';
+
+    function applyBayer(r, g, b, x, y) {
+      if (!useBayer) return [r, g, b];
+      const thresh = BAYER4[(y & 3) * 4 + (x & 3)];
+      const offset = Math.round((thresh / 16 - 0.5) * BAYER_SCALE);
+      return [
+        Math.max(0, Math.min(255, r + offset)),
+        Math.max(0, Math.min(255, g + offset)),
+        Math.max(0, Math.min(255, b + offset)),
+      ];
+    }
+
     pushUndo();
     const newData = new Uint8Array(md.dataSize);
 
@@ -1887,7 +1920,8 @@ document.getElementById('img-input').addEventListener('change', e => {
             const x = bx*4+d;
             const idx = (y*md.dotW+x)*4;
             const [gr, gg, gb] = applyGamma(imgData.data[idx], imgData.data[idx+1], imgData.data[idx+2]);
-            const ci = nearestPal(gr, gg, gb);
+            const [dr, dg, db] = applyBayer(gr, gg, gb, x, y);
+            const ci = nearestPal(dr, dg, db);
             byte |= (ci & 0x03) << (6-d*2);
           }
           newData[y*32+bx] = byte;
@@ -1901,7 +1935,8 @@ document.getElementById('img-input').addEventListener('change', e => {
             const x = bx*8+d;
             const idx = (y*md.dotW+x)*4;
             const [gr, gg, gb] = applyGamma(imgData.data[idx], imgData.data[idx+1], imgData.data[idx+2]);
-            const ci = nearestPal(gr, gg, gb);
+            const [dr, dg, db] = applyBayer(gr, gg, gb, x, y);
+            const ci = nearestPal(dr, dg, db);
             if (ci & 1) byte |= (1 << (7-d));
           }
           newData[y*32+bx] = byte;
@@ -1973,6 +2008,23 @@ document.getElementById('gamma-slider').addEventListener('input', e => {
   const v = parseInt(e.target.value) / 100;
   const label = v === 1.0 ? `${v.toFixed(2)} (補正なし)` : v.toFixed(2);
   document.getElementById('gamma-val').textContent = label;
+});
+
+// ディザ選択
+let currentDither = 'none';
+document.getElementById('btn-dither-none').addEventListener('click', () => {
+  currentDither = 'none';
+  document.getElementById('btn-dither-none').style.borderColor = 'var(--amber)';
+  document.getElementById('btn-dither-none').style.color = 'var(--amber)';
+  document.getElementById('btn-dither-bayer').style.borderColor = '';
+  document.getElementById('btn-dither-bayer').style.color = '';
+});
+document.getElementById('btn-dither-bayer').addEventListener('click', () => {
+  currentDither = 'bayer';
+  document.getElementById('btn-dither-bayer').style.borderColor = 'var(--amber)';
+  document.getElementById('btn-dither-bayer').style.color = 'var(--amber)';
+  document.getElementById('btn-dither-none').style.borderColor = '';
+  document.getElementById('btn-dither-none').style.color = '';
 });
 
 let gridOn = true, attrGridOn = true;
