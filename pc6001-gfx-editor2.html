@@ -322,7 +322,7 @@ body {
   </div>
   <div class="hbar"></div>
   <span class="spec-badge">HARDWARE SPEC</span>
-  <span class="ver-badge">v2.5</span>
+  <span class="ver-badge">v2.6</span>
 </div>
 
 <div id="mode-info">—</div>
@@ -1852,6 +1852,17 @@ document.getElementById('img-input').addEventListener('change', e => {
       return best;
     }
 
+    // ガンマ補正 γ=0.7: 暗部を持ち上げ、明暗の分布を均等化する前処理
+    // 量子化前・明度優先色選択前に適用することで相乗効果を狙う
+    const GAMMA = 0.7;
+    const gammaLUT = new Uint8Array(256);
+    for (let i = 0; i < 256; i++) {
+      gammaLUT[i] = Math.round(255 * Math.pow(i / 255, GAMMA));
+    }
+    function applyGamma(r, g, b) {
+      return [gammaLUT[r], gammaLUT[g], gammaLUT[b]];
+    }
+
     pushUndo();
     const newData = new Uint8Array(md.dataSize);
 
@@ -1862,7 +1873,8 @@ document.getElementById('img-input').addEventListener('change', e => {
           for (let d = 0; d < 4; d++) {
             const x = bx*4+d;
             const idx = (y*md.dotW+x)*4;
-            const ci = nearestPal(imgData.data[idx], imgData.data[idx+1], imgData.data[idx+2]);
+            const [gr, gg, gb] = applyGamma(imgData.data[idx], imgData.data[idx+1], imgData.data[idx+2]);
+            const ci = nearestPal(gr, gg, gb);
             byte |= (ci & 0x03) << (6-d*2);
           }
           newData[y*32+bx] = byte;
@@ -1875,7 +1887,8 @@ document.getElementById('img-input').addEventListener('change', e => {
           for (let d = 0; d < 8; d++) {
             const x = bx*8+d;
             const idx = (y*md.dotW+x)*4;
-            const ci = nearestPal(imgData.data[idx], imgData.data[idx+1], imgData.data[idx+2]);
+            const [gr, gg, gb] = applyGamma(imgData.data[idx], imgData.data[idx+1], imgData.data[idx+2]);
+            const ci = nearestPal(gr, gg, gb);
             if (ci & 1) byte |= (1 << (7-d));
           }
           newData[y*32+bx] = byte;
