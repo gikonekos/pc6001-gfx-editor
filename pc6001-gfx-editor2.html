@@ -322,7 +322,7 @@ body {
   </div>
   <div class="hbar"></div>
   <span class="spec-badge">HARDWARE SPEC</span>
-  <span class="ver-badge">v2.6</span>
+  <span class="ver-badge">v2.7</span>
 </div>
 
 <div id="mode-info">—</div>
@@ -451,6 +451,19 @@ body {
       <input type="file" id="p6g-input" accept=".p6g" style="display:none">
       <div style="height:3px"></div>
       <div class="rpanel-label">IMAGE IMPORT</div>
+      <!-- ガンマスライダー -->
+      <div style="margin-bottom:5px;">
+        <div style="font-size:10px;color:var(--amber-dim);letter-spacing:1px;margin-bottom:2px;">GAMMA / 明るさ補正</div>
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-dim);margin-bottom:1px;">
+          <span>brighter</span><span>darker</span>
+        </div>
+        <input type="range" id="gamma-slider" min="50" max="120" value="85" step="5"
+          style="width:100%;accent-color:var(--amber);cursor:pointer;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">
+          <span style="font-size:9px;color:var(--text-dim);">小さいほど明るく・1.0=補正なし</span>
+          <span id="gamma-val" style="font-size:11px;color:var(--amber);font-family:'Share Tech Mono',monospace;">0.85</span>
+        </div>
+      </div>
       <button class="action-btn" id="btn-load-img">画像読み込み… (PNG/JPEG等)</button>
       <input type="file" id="img-input" accept="image/*" style="display:none">
     </div>
@@ -1852,9 +1865,9 @@ document.getElementById('img-input').addEventListener('change', e => {
       return best;
     }
 
-    // ガンマ補正 γ=0.7: 暗部を持ち上げ、明暗の分布を均等化する前処理
-    // 量子化前・明度優先色選択前に適用することで相乗効果を狙う
-    const GAMMA = 0.7;
+    // ガンマ補正 γ=ユーザー設定（デフォルト0.85）
+    // スライダー値を読み取ってLUTを生成
+    const GAMMA = parseFloat(document.getElementById('gamma-slider').value) / 100;
     const gammaLUT = new Uint8Array(256);
     for (let i = 0; i < 256; i++) {
       gammaLUT[i] = Math.round(255 * Math.pow(i / 255, GAMMA));
@@ -1954,6 +1967,13 @@ document.getElementById('btn-clear').addEventListener('click', () => {
 
 document.getElementById('btn-undo').addEventListener('click', undo);
 document.getElementById('btn-redo').addEventListener('click', redo);
+
+// ガンマスライダー値表示
+document.getElementById('gamma-slider').addEventListener('input', e => {
+  const v = parseInt(e.target.value) / 100;
+  const label = v === 1.0 ? `${v.toFixed(2)} (補正なし)` : v.toFixed(2);
+  document.getElementById('gamma-val').textContent = label;
+});
 
 let gridOn = true, attrGridOn = true;
 document.getElementById('btn-grid').addEventListener('click', () => {

@@ -223,7 +223,7 @@ footer span { color: var(--amber-dim); }
   <span class="topbar-sep">·</span>
   <a href="#en-top">English</a>
   <div class="topbar-spacer"></div>
-  <span>v2.4 — HARDWARE SPEC</span>
+  <span>v2.7 — HARDWARE SPEC</span>
 </div>
 
 <div class="page">
@@ -233,7 +233,7 @@ footer span { color: var(--amber-dim); }
   <h1 id="ja-top">PC-<em>6001</em> GFX EDITOR v2<span class="cursor"></span></h1>
   <div class="hero-sub">仕様書 &amp; 利用マニュアル　／　Specification &amp; User Manual</div>
   <div class="ver-tag">
-    <span class="v">v2.4</span>
+    <span class="v">v2.7</span>
     <span class="s">HARDWARE SPEC COMPLIANT</span>
     <span class="d">v1系とは別ファイル</span>
   </div>
@@ -523,14 +523,44 @@ footer span { color: var(--amber-dim); }
       <thead><tr><th>バージョン</th><th>日付</th><th>変更内容</th></tr></thead>
       <tbody>
         <tr>
+          <td>v2.7</td>
+          <td>2026-04-11</td>
+          <td>
+            <strong>ガンマ値をユーザー設定可能に</strong><br>
+            IMAGE IMPORTセクションにガンマスライダーを追加（範囲0.50〜1.20、デフォルト0.85、0.05刻み）。
+            スライダー操作でリアルタイムに値が更新され、次の画像読み込み時に適用される。
+            UI表記を英日併記（brighter / darker・小さいほど明るく・1.0=補正なし）として直感的な解釈を助けた。
+          </td>
+        </tr>
+        <tr>
+          <td>v2.6</td>
+          <td>2026-04-11</td>
+          <td>
+            <strong>ガンマ補正前処理追加（固定γ=0.7）</strong><br>
+            画像取り込み時に量子化前の前処理としてガンマ補正を追加。256エントリLUTで高速化。SCR3/SCR4両対応。
+            暗部を持ち上げることで明暗分布が均等化し、v2.5の明度優先色選択との相乗効果を狙った。
+            SCR4（2色）では効果が顕著。SCR3では補正が強すぎる場合があったためv2.7でユーザー設定可能に。
+          </td>
+        </tr>
+        <tr>
+          <td>v2.5</td>
+          <td>2026-04-11</td>
+          <td>
+            <strong>明度優先色選択</strong><br>
+            画像取り込み時の色選択を単純RGB距離からYCbCr加重距離に変更。
+            輝度Y = 0.299R + 0.587G + 0.114B に変換し、距離を 4×ΔY² + ΔCb² + ΔCr² として明度差を4倍重視。
+            色よりも明暗の再現を優先し「何が写っているか」を見やすくすることを目的とする。
+          </td>
+        </tr>
+        <tr>
           <td>v2.4</td>
           <td>2026-04-10</td>
           <td>
             <strong>CGROM埋め込み・実機フォント描画・文字パレット・アトリビュート色変更</strong><br>
             eighttails氏制作 M+ Bitmap Font ベースの互換CGROMデータ（256文字×16バイト）をHTMLに埋め込み。
-            renderSCR1() をCGROMビットパターンで8×12ドットを1ドットずつ描画する実装に書き換え（従来のctx.fillText簡易表示を廃止）。
-            右パネルに文字パレット（256文字・16列×16行）を追加。CGROMフォントで各文字を描画。クリックで選択セルに配置しカーソルが右へ移動。
-            セル選択時に白(CSS=0) / 緑(CSS=1) 切り替えボタンを追加。選択セル単位でアトリビュートのCSSビットを変更可能。
+            renderSCR1() をCGROMビットパターンで8×12ドットを1ドットずつ描画する実装に書き換え。
+            右パネルに文字パレット（256文字・16列×16行）を追加。クリックで選択セルに配置しカーソルが右へ移動。
+            セル選択時に白(CSS=0) / 緑(CSS=1) 切り替えボタンを追加。セル単位でアトリビュートのCSSビットを変更可能。
           </td>
         </tr>
         <tr>
@@ -538,9 +568,7 @@ footer span { color: var(--amber-dim); }
           <td>2026-04-10</td>
           <td>
             <strong>SCREEN 1 色バグ修正</strong><br>
-            renderSCR1() の FG/BG 色計算を実機仕様に修正。
-            修正前は BG が黒でなく白になり、文字が白背景に白で描画される問題があった。
-            修正後: BG=黒固定、FG=CSS=0のとき白・CSS=1のとき緑、INV=1で反転。
+            renderSCR1() の FG/BG 色計算を実機仕様に修正。BG=黒固定、FG=CSS=0のとき白・CSS=1のとき緑、INV=1で反転。
           </td>
         </tr>
         <tr>
@@ -548,10 +576,8 @@ footer span { color: var(--amber-dim); }
           <td>2026-04-10</td>
           <td>
             <strong>SCREEN 1 文字入力UI追加</strong><br>
-            右パネルに文字入力フィールドを追加。キーボードから1文字入力するとキャラコードとして選択セルに書き込み、カーソルが自動で右へ移動。
-            ←→DELボタンによるカーソル移動・文字削除に対応。矢印キー（↑↓←→）でセル移動。Enter で次の行の先頭へ移動。Backspace で現在セルをスペースにして左移動。
-            キャンバス上の選択セルをアンバー色の枠でハイライト表示。
-            文字入力フィールドにフォーカス中はツールショートカットキー（P/E/F/L/R/I/C）を抑制。
+            右パネルに文字入力フィールドを追加。1文字入力でキャラコードを書き込みカーソルが自動で右へ移動。
+            ←→DELボタン、矢印キー、Enter、Backspace に対応。選択セルをアンバー色の枠でハイライト表示。
           </td>
         </tr>
         <tr>
@@ -559,9 +585,7 @@ footer span { color: var(--amber-dim); }
           <td>2026-04-03</td>
           <td>
             <strong>スクロール修正</strong><br>
-            ズーム時にキャンバスがスクロールできない問題を修正。
-            #canvas-area の display:flex + align-items/justify-content:center を削除し、padding:16px + overflow:auto に変更。
-            キャンバスが左上起点で配置されるようになり、ズームアップ時にスクロールバーが正しく機能するようになった。
+            ズーム時にキャンバスがスクロールできない問題を修正。padding:16px + overflow:auto に変更。
           </td>
         </tr>
         <tr>
@@ -569,14 +593,9 @@ footer span { color: var(--amber-dim); }
           <td>2026-04-03</td>
           <td>
             <strong>実機VRAM仕様準拠 初版</strong><br>
-            v1系（エイプリルフール独自仕様版）から独立した別HTMLとして新規作成。
-            実機 SCREEN 1〜4、アトリビュート512B+データ構造、CSS色セット（2セット切り替え）、
-            2bit/dot・32B/line (SCR3) / 1bit/dot・32B/line (SCR4) のビットレベルデータ構造を実装。
-            ASM出力を実機VRAM形式（ATTRブロック+DATAブロック）に再設計。
-            .p6g 形式は version:2 として v1系（version:1）と分離・非互換。
-            アトリビュートグリッドを32列×16ライン単位で可視化。
-            SCREEN 3 / 4 の描画ツール（ペン・消しゴム・塗りつぶし・直線・矩形）フル対応。
-            SCREEN 1 / 2 は簡易表示のみ（v2.2以降で順次対応）。
+            v1系から独立した別HTMLとして新規作成。実機 SCREEN 1〜4、アトリビュート512B+データ構造、CSS色セット、
+            2bit/dot (SCR3) / 1bit/dot (SCR4) のビットレベルデータ構造を実装。ASM出力を実機VRAM形式に再設計。
+            .p6g format version:2（v1系と非互換）。SCREEN 3/4 描画ツールフル対応。
           </td>
         </tr>
       </tbody>
@@ -751,14 +770,44 @@ footer span { color: var(--amber-dim); }
       <thead><tr><th>Version</th><th>Date</th><th>Changes</th></tr></thead>
       <tbody>
         <tr>
+          <td>v2.7</td>
+          <td>2026-04-11</td>
+          <td>
+            <strong>User-adjustable gamma value</strong><br>
+            Added gamma slider to the IMAGE IMPORT section (range 0.50–1.20, default 0.85, step 0.05).
+            Value updates in real time and is applied on next image import.
+            UI labels in English and Japanese: brighter / darker · smaller = brighter · 1.0 = no correction.
+          </td>
+        </tr>
+        <tr>
+          <td>v2.6</td>
+          <td>2026-04-11</td>
+          <td>
+            <strong>Gamma correction pre-processing (fixed γ=0.7)</strong><br>
+            Added gamma correction as a pre-processing step before quantization. 256-entry LUT for speed. Applies to SCR3/SCR4.
+            Lifts shadow areas to equalize luminance distribution and works synergistically with v2.5 luminance-priority color selection.
+            Noticeably improved SCR4 (2-color) readability. Became user-adjustable in v2.7.
+          </td>
+        </tr>
+        <tr>
+          <td>v2.5</td>
+          <td>2026-04-11</td>
+          <td>
+            <strong>Luminance-priority color selection</strong><br>
+            Changed image import color matching from plain RGB distance to YCbCr weighted distance.
+            Luminance Y = 0.299R + 0.587G + 0.114B; distance = 4×ΔY² + ΔCb² + ΔCr², giving 4× weight to luminance difference.
+            Prioritizes reproducing light/dark structure over hue accuracy, making photo content more recognizable.
+          </td>
+        </tr>
+        <tr>
           <td>v2.4</td>
           <td>2026-04-10</td>
           <td>
             <strong>CGROM embed, real font rendering, character palette, per-cell attribute color change</strong><br>
             Embedded CGROM data (256 chars × 16 bytes) by eighttails, based on M+ Bitmap Font.
-            Rewrote renderSCR1() to draw 8×12 dots pixel-by-pixel from CGROM bitmaps (replaces ctx.fillText fallback).
-            Added 256-character palette (16×16 grid) in the right panel; each cell rendered using CGROM at 1× zoom. Click to place the character in the selected cell and advance cursor right.
-            Added white (CSS=0) / green (CSS=1) toggle buttons for per-cell attribute color change.
+            Rewrote renderSCR1() to draw 8×12 dots pixel-by-pixel from CGROM bitmaps.
+            Added 256-character palette (16×16 grid); click to place character and advance cursor.
+            Added white (CSS=0) / green (CSS=1) toggle for per-cell attribute color change.
           </td>
         </tr>
         <tr>
@@ -766,8 +815,7 @@ footer span { color: var(--amber-dim); }
           <td>2026-04-10</td>
           <td>
             <strong>SCREEN 1 color rendering bug fix</strong><br>
-            Fixed FG/BG color logic in renderSCR1(). Previously BG was incorrectly set to white, causing white-on-white rendering.
-            Corrected: BG=black (fixed), FG=white (CSS=0) or green (CSS=1), inverted when INV=1.
+            Fixed FG/BG color logic in renderSCR1(). BG=black (fixed), FG=white (CSS=0) or green (CSS=1), inverted when INV=1.
           </td>
         </tr>
         <tr>
@@ -775,10 +823,8 @@ footer span { color: var(--amber-dim); }
           <td>2026-04-10</td>
           <td>
             <strong>SCREEN 1 text input UI</strong><br>
-            Added text input field in the right panel. Typing a character writes its ASCII code to the selected cell and auto-advances the cursor right.
-            ←→DEL buttons for cursor movement and deletion. Arrow keys for cell navigation. Enter moves to next line start. Backspace clears current cell and moves left.
-            Selected cell highlighted with amber outline on canvas.
-            Tool shortcut keys suppressed while the text input field has focus.
+            Added text input field. Typing places character and auto-advances cursor right.
+            ←→DEL buttons, arrow keys, Enter, Backspace supported. Selected cell highlighted with amber outline.
           </td>
         </tr>
         <tr>
@@ -786,9 +832,7 @@ footer span { color: var(--amber-dim); }
           <td>2026-04-03</td>
           <td>
             <strong>Canvas scroll fix</strong><br>
-            Fixed canvas not scrollable when zoomed in.
-            Removed display:flex + centering from #canvas-area; replaced with padding:16px + overflow:auto.
-            Canvas now anchors top-left, allowing scrollbars to work correctly at high zoom levels.
+            Fixed canvas not scrollable when zoomed. Replaced flex centering with padding:16px + overflow:auto.
           </td>
         </tr>
         <tr>
@@ -796,14 +840,9 @@ footer span { color: var(--amber-dim); }
           <td>2026-04-03</td>
           <td>
             <strong>Initial hardware-spec compliant release</strong><br>
-            New standalone HTML, fully independent from the v1 April Fools' series.
-            Implements real SCREEN 1–4 modes, 512B attribute + data VRAM structure, CSS color sets (2-set switching),
-            2bit/dot · 32B/line (SCR3) and 1bit/dot · 32B/line (SCR4) bit-level data layout.
-            ASM output redesigned to hardware VRAM format (ATTR block + DATA block).
-            .p6g format uses version:2, incompatible with v1 (version:1) files.
-            Attribute grid visualized in 32-column × 16-line units.
-            Full drawing tool support (pen, eraser, fill, line, rectangle) for SCREEN 3/4.
-            SCREEN 1/2: display only at launch (progressively expanded from v2.2 onward).
+            New standalone HTML, independent from v1 April Fools' series.
+            Real SCREEN 1–4, 512B attribute + data VRAM structure, CSS color sets, 2bit/dot (SCR3) / 1bit/dot (SCR4).
+            ASM output in hardware VRAM format. .p6g version:2 (incompatible with v1). Full drawing tools for SCR3/4.
           </td>
         </tr>
       </tbody>
@@ -812,7 +851,7 @@ footer span { color: var(--amber-dim); }
 </section>
 
 <footer>
-  PC-6001 GFX EDITOR <span>v2.4</span> — Hardware Spec Compliant Edition<br>
+  PC-6001 GFX EDITOR <span>v2.7</span> — Hardware Spec Compliant Edition<br>
   NEC PC-6001 is a trademark of NEC Corporation. This tool is an independent fan project.<br>
   VRAM spec reference: <span>https://000.la.coocan.jp/p6/tech.html#vram</span>
 </footer>
